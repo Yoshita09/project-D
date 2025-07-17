@@ -5,7 +5,6 @@ import { useFrame } from '@react-three/fiber';
 import { useRef, useEffect } from 'react';
 
 // Simple procedural heightmap function
-function generateHeight(x, y) {
   return (
     Math.sin(x * 0.2) * Math.cos(y * 0.2) * 4 +
     Math.sin(x * 0.5) * 2 +

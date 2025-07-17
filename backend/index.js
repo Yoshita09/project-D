@@ -2,30 +2,660 @@ const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const { spawn } = require('child_process');
+const WebSocket = require('ws');
+require('dotenv').config();
+const mongoose = require('mongoose');
+const axios = require('axios');
+
+// Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/drone_fleet', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('MongoDB connected'))
+.catch((err) => console.error('MongoDB connection error:', err));
 
 const app = express();
-const port = 5000;
+const PORT = process.env.PORT || 5000;
 
+// WebSocket server
+const wss = new WebSocket.Server({ port: 8080 });
+
+// Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/uploads', express.static('uploads'));
 
-// Set up multer for file uploads
-const upload = multer({ dest: 'uploads/' });
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
 
-// AI Detection Endpoint (placeholder logic)
-app.post('/api/detect', upload.single('image'), (req, res) => {
-  // In a real implementation, you would process req.file.path with your AI model or API
-  // For now, return a placeholder response
-  res.json({
-    success: true,
-    message: 'AI detection completed (placeholder)',
-    filename: req.file ? req.file.originalname : null,
-    detections: [
-      { label: 'object', confidence: 0.95, box: [100, 100, 200, 200] }
-    ]
+const upload = multer({ storage: storage });
+
+// --- WebSocket Real-Time Per-Drone Logic ---
+// Map of droneId to WebSocket (for drones)
+const droneSockets = new Map();
+// Set of client sockets (for dashboards, etc.)
+const clientSockets = new Set();
+
+/**
+ * WebSocket message structure:
+ * - Telemetry (from drone):
+ *   { type: 'telemetry', droneId: 'pinaka-1', telemetry: { battery, altitude, speed, signal, heading, orientation, mode, lat, lng }, location: { lat, lng } }
+ * - Command (from frontend):
+ *   { type: 'command', droneId: 'pinaka-1', command: 'takeoff'|'land'|'rth'|'arm'|'disarm'|'override'|'mission_upload'|'kamikaze'|'emergency_land'|'kill_switch', params: {...} }
+ * - Video/thermal feed (placeholder):
+ *   { type: 'video', droneId, streamUrl }
+ * - Swarm command (placeholder):
+ *   { type: 'swarm_command', command, drones: [droneId,...], params }
+ * - Emergency (placeholder):
+ *   { type: 'emergency', droneId, action: 'abort'|'kill'|'emergency_land' }
+ * - IFF update (placeholder):
+ *   { type: 'iff_update', droneId, iffCode, status }
+ */
+
+wss.on('connection', (ws) => {
+  ws.isAlive = true;
+  ws.on('pong', () => { ws.isAlive = true; });
+
+  ws.on('message', async (message) => {
+    try {
+      const data = JSON.parse(message);
+      // Drone telemetry update
+      if (data.type === 'telemetry' && data.droneId) {
+        droneSockets.set(data.droneId, ws);
+        // Update drone in DB
+        await Drone.findOneAndUpdate(
+          { name: new RegExp(`^${data.droneId}$`, 'i') },
+          {
+            $set: {
+              telemetry: data.telemetry,
+              location: data.location,
+              isActive: true,
+              status: 'Active',
+            },
+          },
+          { new: true }
+        );
+        // Broadcast telemetry to all clients
+        clientSockets.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+              type: 'telemetry',
+              droneId: data.droneId,
+              telemetry: data.telemetry,
+              location: data.location,
+            }));
+          }
+        });
+      }
+      // Command from frontend
+      else if (data.type === 'command' && data.droneId) {
+        const droneWs = droneSockets.get(data.droneId);
+        if (droneWs && droneWs.readyState === WebSocket.OPEN) {
+          droneWs.send(JSON.stringify(data));
+        }
+      }
+      // Swarm command (placeholder)
+      else if (data.type === 'swarm_command') {
+        // Broadcast to all specified drones
+        (data.drones || []).forEach(droneId => {
+          const droneWs = droneSockets.get(droneId);
+          if (droneWs && droneWs.readyState === WebSocket.OPEN) {
+            droneWs.send(JSON.stringify(data));
+          }
+        });
+      }
+      // Emergency (placeholder)
+      else if (data.type === 'emergency' && data.droneId) {
+        const droneWs = droneSockets.get(data.droneId);
+        if (droneWs && droneWs.readyState === WebSocket.OPEN) {
+          droneWs.send(JSON.stringify(data));
+        }
+      }
+      // IFF update (placeholder)
+      else if (data.type === 'iff_update' && data.droneId) {
+        const droneWs = droneSockets.get(data.droneId);
+        if (droneWs && droneWs.readyState === WebSocket.OPEN) {
+          droneWs.send(JSON.stringify(data));
+        }
+      }
+      // Register as client (dashboard)
+      else if (data.type === 'register' && data.role === 'client') {
+        clientSockets.add(ws);
+      }
+      // Video/thermal feed (placeholder)
+      else if (data.type === 'video' && data.droneId) {
+        // Broadcast video stream URL to all clients
+        clientSockets.forEach((client) => {
+          if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+              type: 'video',
+              droneId: data.droneId,
+              streamUrl: data.streamUrl || '',
+            }));
+          }
+        });
+      }
+    } catch (error) {
+      console.error('WebSocket message error:', error);
+    }
+  });
+
+  ws.on('close', () => {
+    for (const [droneId, socket] of droneSockets.entries()) {
+      if (socket === ws) droneSockets.delete(droneId);
+    }
+    clientSockets.delete(ws);
+    console.log('WebSocket disconnected');
   });
 });
 
-app.listen(port, () => {
-  console.log(`AI Detection API server running at http://localhost:${port}`);
+// Drone Mongoose model
+const droneSchema = new mongoose.Schema({
+  name: { type: String, required: true, unique: true },
+  type: { type: String, default: 'Reconnaissance' },
+  status: { type: String, default: 'Idle' },
+  telemetry: {
+    battery: { type: Number, default: 100 },
+    altitude: { type: Number, default: 0 },
+    speed: { type: Number, default: 0 },
+    signal: { type: Number, default: 100 },
+    heading: { type: Number, default: 0 },
+    orientation: { type: String, default: 'N' },
+    mode: { type: String, default: 'Auto' },
+  },
+  role: { type: String, default: 'Scout' },
+  isActive: { type: Boolean, default: false },
+  isHeadDrone: { type: Boolean, default: false },
+  jammingStatus: { type: String, default: 'STANDBY' },
+  threatLevel: { type: String, default: 'LOW' },
+  location: {
+    lat: { type: Number, default: 28.6139 },
+    lng: { type: Number, default: 77.2090 },
+  },
+  lastDetection: { type: Object, default: null }, // Added for per-drone detection
+  lastDescription: { type: Object, default: null }, // Added for per-drone description
+}, { timestamps: true });
+
+const Drone = mongoose.model('Drone', droneSchema);
+
+// Routes
+app.get('/', (req, res) => {
+  res.json({ message: 'Advanced Drone Surveillance API' });
+});
+
+// AI Detection endpoint (per-drone, via FastAPI)
+app.post('/api/detect', upload.single('image'), async (req, res) => {
+  try {
+    const { droneId, lat, lng, timestamp } = req.body;
+    if (!req.file || !droneId) {
+      return res.status(400).json({ error: 'Image and droneId required' });
+    }
+    const imagePath = req.file.path;
+    // Forward to FastAPI /analyze
+    const formData = new FormData();
+    formData.append('file', require('fs').createReadStream(imagePath));
+    formData.append('lat', lat || 28.6139);
+    formData.append('long', lng || 77.2090);
+    formData.append('timestamp', timestamp || new Date().toISOString());
+    const fastApiUrl = process.env.FASTAPI_URL || 'http://localhost:8000/analyze';
+    const response = await axios.post(fastApiUrl, formData, {
+      headers: formData.getHeaders(),
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
+    });
+    const detections = response.data;
+    // Store detection in drone DB
+    await Drone.findOneAndUpdate(
+      { name: new RegExp(`^${droneId}$`, 'i') },
+      { $set: { lastDetection: detections } },
+      { new: true }
+    );
+    // Broadcast detection via WebSocket
+    clientSockets.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({
+          type: 'detection',
+          droneId,
+          detections,
+        }));
+      }
+    });
+    res.json({ success: true, droneId, detections });
+  } catch (error) {
+    console.error('Detection error:', error);
+    res.status(500).json({ error: 'Detection failed' });
+  }
+});
+
+// AI Description endpoint (per-drone, via FastAPI)
+app.post('/api/describe', upload.single('image'), async (req, res) => {
+  try {
+    const { droneId } = req.body;
+    if (!req.file || !droneId) {
+      return res.status(400).json({ error: 'Image and droneId required' });
+    }
+    const imagePath = req.file.path;
+    // Forward to FastAPI /describe
+    const formData = new FormData();
+    formData.append('file', require('fs').createReadStream(imagePath));
+    const fastApiUrl = process.env.FASTAPI_URL_DESCRIBE || 'http://localhost:8000/describe';
+    const response = await axios.post(fastApiUrl, formData, {
+      headers: formData.getHeaders(),
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
+    });
+    const description = response.data;
+    // Store description in drone DB
+    await Drone.findOneAndUpdate(
+      { name: new RegExp(`^${droneId}$`, 'i') },
+      { $set: { lastDescription: description } },
+      { new: true }
+    );
+    // Broadcast description via WebSocket
+    clientSockets.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({
+          type: 'description',
+          droneId,
+          description,
+        }));
+      }
+    });
+    res.json({ success: true, droneId, description });
+  } catch (error) {
+    console.error('Description error:', error);
+    res.status(500).json({ error: 'Description failed' });
+  }
+});
+
+// Analytics endpoints
+app.get('/api/analytics/performance', (req, res) => {
+  const performance = {
+    detectionAccuracy: 94.2,
+    responseTime: 2.3,
+    systemUptime: 99.8,
+    falsePositives: 3.2,
+    threatsNeutralized: 127,
+    coverageArea: 85.7
+  };
+  res.json(performance);
+});
+
+app.get('/api/analytics/trends', (req, res) => {
+  const trends = {
+    dailyDetections: [45, 52, 38, 67, 89, 76, 94],
+    threatLevels: [12, 18, 15, 22, 31, 28, 35],
+    systemEfficiency: [92, 94, 91, 96, 93, 95, 97]
+  };
+  res.json(trends);
+});
+
+app.get('/api/analytics/historical', (req, res) => {
+  const historical = {
+    monthlyThreats: [156, 189, 234, 198, 267, 245, 289],
+    monthlyNeutralizations: [142, 175, 218, 185, 251, 232, 274],
+    monthlyAccuracy: [91.2, 92.6, 93.1, 93.8, 94.2, 94.7, 94.9]
+  };
+  res.json(historical);
+});
+
+// Defense Systems endpoints
+app.get('/api/defense/status', (req, res) => {
+  const defenseStatus = {
+    airDefense: {
+      active: true,
+      coverage: 85,
+      targets: 3,
+      missiles: 12,
+      range: 50,
+      accuracy: 92
+    },
+    radar: {
+      active: true,
+      range: 200,
+      targets: 5,
+      frequency: 'X-Band',
+      power: 85,
+      interference: 0
+    },
+    missile: {
+      ready: 8,
+      locked: 2,
+      fired: 0,
+      accuracy: 94,
+      range: 150,
+      speed: 2500
+    },
+    jamming: {
+      active: false,
+      power: 0,
+      frequency: 'Multi-Band',
+      range: 100,
+      effectiveness: 0
+    }
+  };
+  res.json(defenseStatus);
+});
+
+app.post('/api/defense/activate', (req, res) => {
+  const { system } = req.body;
+  console.log(`Activating ${system} system`);
+  
+  // Broadcast defense system activation
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify({
+        type: 'defense_activation',
+        data: { system, active: true }
+      }));
+    }
+  });
+  
+  res.json({ success: true, message: `${system} system activated` });
+});
+
+// Security endpoints
+app.get('/api/security/health', (req, res) => {
+  const healthStatus = {
+    timestamp: new Date().toISOString(),
+    system_status: 'healthy',
+    security_events_last_hour: 5,
+    active_sessions: 3,
+    failed_login_attempts: 2,
+    system_uptime: '99.8%',
+    memory_usage: '67%',
+    cpu_usage: '45%',
+    disk_usage: '23%'
+  };
+  res.json(healthStatus);
+});
+
+app.post('/api/security/login', (req, res) => {
+  const { username, password } = req.body;
+  
+  // Simple authentication (in production, use proper auth)
+  if (username === 'admin' && password === 'password') {
+    const token = 'mock-jwt-token-' + Date.now();
+  res.json({
+    success: true,
+      token,
+      user: { username, role: 'admin' }
+    });
+  } else {
+    res.status(401).json({ error: 'Invalid credentials' });
+  }
+});
+
+// Threat Analysis endpoints
+app.get('/api/threats/current', (req, res) => {
+  const threats = [
+    {
+      id: 1,
+      type: 'Aircraft',
+      distance: 150,
+      speed: 450,
+      threat: 'HIGH',
+      timestamp: new Date().toISOString()
+    },
+    {
+      id: 2,
+      type: 'Drone',
+      distance: 80,
+      speed: 120,
+      threat: 'MEDIUM',
+      timestamp: new Date().toISOString()
+    }
+  ];
+  res.json(threats);
+});
+
+app.post('/api/threats/analyze', (req, res) => {
+  const { threatData } = req.body;
+  
+  // Simulate threat analysis
+  const analysis = {
+    threatLevel: 'HIGH',
+    confidence: 0.92,
+    recommendedAction: 'Intercept',
+    estimatedTimeToCritical: 180,
+    riskFactors: ['High speed', 'Unknown origin', 'Erratic movement']
+  };
+  
+  res.json(analysis);
+});
+
+// System Status endpoints
+app.get('/api/system/status', (req, res) => {
+  const systemStatus = {
+    weather: 'Clear',
+    windSpeed: 15,
+    visibility: 'Good',
+    threatLevel: 'MEDIUM',
+    jammingActive: false,
+    headDroneStatus: 'Operational'
+  };
+  res.json(systemStatus);
+});
+
+// Get all detections
+app.get('/api/detections', (req, res) => {
+  // Mock detections data
+  const detections = [
+    {
+      id: 1,
+      type: 'person',
+      confidence: 0.95,
+      bounding_box: [100, 150, 200, 300],
+      threat_level: 'LOW',
+      timestamp: new Date().toISOString()
+    },
+    {
+      id: 2,
+      type: 'vehicle',
+      confidence: 0.87,
+      bounding_box: [300, 200, 450, 350],
+      threat_level: 'MEDIUM',
+      timestamp: new Date().toISOString()
+    }
+  ];
+  res.json(detections);
+});
+
+// --- Drone API Endpoints ---
+
+// Seed demo fleet if DB is empty
+async function seedDemoFleet() {
+  const count = await Drone.countDocuments();
+  if (count === 0) {
+    const demoDrones = [
+      { name: 'Pinaka 1', type: 'Reconnaissance', isActive: true, isHeadDrone: true, location: { lat: 28.6139, lng: 77.2090 } },
+      { name: 'Pinaka 2', type: 'Combat', isActive: true, isHeadDrone: false, location: { lat: 28.7041, lng: 77.1025 } },
+      { name: 'Pinaka 3', type: 'Surveillance', isActive: false, isHeadDrone: false, location: { lat: 28.5355, lng: 77.3910 } },
+    ];
+    await Drone.insertMany(demoDrones);
+    console.log('Demo drone fleet seeded');
+  }
+}
+seedDemoFleet();
+
+// List all drones
+app.get('/api/drones', async (req, res) => {
+  const drones = await Drone.find();
+  res.json(drones);
+});
+
+// Register a new drone
+app.post('/api/drones', async (req, res) => {
+  try {
+    const drone = new Drone(req.body);
+    await drone.save();
+    res.status(201).json(drone);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Update a drone
+app.put('/api/drones/:id', async (req, res) => {
+  try {
+    const drone = await Drone.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    if (!drone) return res.status(404).json({ error: 'Drone not found' });
+    res.json(drone);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// Remove a drone
+app.delete('/api/drones/:id', async (req, res) => {
+  try {
+    const drone = await Drone.findByIdAndDelete(req.params.id);
+    if (!drone) return res.status(404).json({ error: 'Drone not found' });
+    res.json({ success: true });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+// --- MISSING FEATURE ENDPOINTS (STUBS) ---
+
+// Swarm Coordination: Assign roles, set behavior, get swarm status
+app.post('/api/swarm/assign-role', (req, res) => {
+  // Mock: assign role to drone
+  res.json({ success: true, ...req.body });
+});
+app.post('/api/swarm/set-behavior', (req, res) => {
+  // Mock: set swarm behavior
+  res.json({ success: true, ...req.body });
+});
+app.get('/api/swarm/status', (req, res) => {
+  // Mock: return swarm status
+  res.json({
+    drones: [
+      { name: 'pinaka-1', role: 'Leader', behavior: 'Aggressive' },
+      { name: 'pinaka-2', role: 'Support', behavior: 'Passive' },
+    ],
+  });
+});
+
+// IFF System: Friend-or-Foe tagging
+app.post('/api/iff/tag', (req, res) => {
+  // Mock: tag drone as friend/foe
+  res.json({ success: true, ...req.body });
+});
+app.get('/api/iff/list', (req, res) => {
+  // Mock: return IFF status for all drones
+  res.json({
+    drones: [
+      { name: 'pinaka-1', iff: 'friend' },
+      { name: 'pinaka-2', iff: 'foe' },
+    ],
+  });
+});
+
+// OTA/Model Management: List, upload, trigger update, rollback
+app.get('/api/ota/list', (req, res) => {
+  // Mock: list models/firmware
+  res.json({
+    drones: [
+      { name: 'pinaka-1', firmware: 'v1.2', model: 'yolov5s.pt' },
+      { name: 'pinaka-2', firmware: 'v1.1', model: 'yolov5s.pt' },
+    ],
+  });
+});
+app.post('/api/ota/upload', upload.single('file'), (req, res) => {
+  // Mock: upload model/firmware
+  res.json({ success: true, file: req.file });
+});
+app.post('/api/ota/update', (req, res) => {
+  // Mock: trigger OTA update
+  res.json({ success: true, ...req.body });
+});
+app.post('/api/ota/rollback', (req, res) => {
+  // Mock: rollback firmware/model
+  res.json({ success: true, ...req.body });
+});
+
+// Mission Logs/History: List, replay, export
+app.get('/api/missions/list', (req, res) => {
+  // Mock: list missions
+  res.json({
+    missions: [
+      { id: 1, name: 'Recon Alpha', date: '2024-06-01', drones: ['pinaka-1'] },
+      { id: 2, name: 'Patrol Beta', date: '2024-06-02', drones: ['pinaka-2'] },
+    ],
+  });
+});
+app.get('/api/missions/:id/replay', (req, res) => {
+  // Mock: replay mission
+  res.json({ success: true, missionId: req.params.id });
+});
+app.get('/api/missions/:id/export', (req, res) => {
+  // Mock: export mission data
+  res.json({ success: true, missionId: req.params.id, format: req.query.format || 'json' });
+});
+
+// Security/Access: Login, roles, access log
+app.post('/api/auth/login', (req, res) => {
+  // Mock: login
+  const { username, password } = req.body;
+  if (username === 'admin' && password === 'admin') {
+    res.json({ success: true, token: 'mock-jwt-token', role: 'Commander' });
+  } else {
+    res.status(401).json({ success: false, message: 'Invalid credentials' });
+  }
+});
+app.get('/api/auth/access-log', (req, res) => {
+  // Mock: access log
+  res.json({
+    logs: [
+      { user: 'admin', action: 'login', time: '2024-06-01T10:00:00Z' },
+      { user: 'operator', action: 'view', time: '2024-06-01T10:05:00Z' },
+    ],
+  });
+});
+
+// Simulation Mode: Toggle, list virtual drones, mock detections
+app.post('/api/sim/toggle', (req, res) => {
+  // Mock: toggle simulation mode
+  res.json({ success: true, mode: req.body.mode });
+});
+app.get('/api/sim/virtual-drones', (req, res) => {
+  // Mock: list virtual drones
+  res.json({
+    drones: [
+      { name: 'sim-1', status: 'Active' },
+      { name: 'sim-2', status: 'Idle' },
+    ],
+  });
+});
+app.get('/api/sim/mock-detections', (req, res) => {
+  // Mock: return mock AI detections
+  res.json({
+    detections: [
+      { drone: 'sim-1', type: 'person', confidence: 0.92 },
+      { drone: 'sim-2', type: 'vehicle', confidence: 0.88 },
+    ],
+  });
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+  console.log(`WebSocket server running on port 8080`);
 }); 

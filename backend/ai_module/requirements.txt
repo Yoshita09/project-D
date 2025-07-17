@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+pydantic
+sqlalchemy
+asyncpg
+ultralytics
+python-multipart
+psycopg2-binary
+scikit-learn
+joblib
+opencv-python
+numpy
+websockets
+redis 

@@ -6,6 +6,15 @@ import ThreatPortal from './ThreatPortal';
 // import { detectAI } from '../api/aiDetection';
 // Add import for new globe panel
 import ThreeDGlobePanel from './ThreeDGlobePanel';
+import AIOutputPortal from './AIOutputPortal';
+import MissionMappingPortal from './MissionMappingPortal';
+import SecurityPortal from './SecurityPortal';
+import MissionHistoryPortal from './MissionHistoryPortal';
+import FirmwareManagementPortal from './FirmwareManagementPortal';
+import EmergencyControlsPortal from './EmergencyControlsPortal';
+import IntegrationPortal from './IntegrationPortal';
+import SwarmAISyncPortal from './SwarmAISyncPortal';
+import IFFPortal from './IFFPortal';
 
 const DroneDashboard = (props) => {
   const { detections = [], airDefenses = [], radars = [], missiles = [], detectAirDefense, detectRadar, detectMissile } = props;
@@ -40,9 +49,17 @@ const DroneDashboard = (props) => {
       const types = ['Reconnaissance','Combat','Surveillance','Heavy Combat','Stealth','Multi-Role'];
       const threatLevels = ['Low','Medium','High'];
       const sector = idx <= 26 ? String.fromCharCode(64 + idx) : 'A' + String.fromCharCode(64 + idx - 26);
+      // For drones that will be at position 50-63 in the full drones array, use 'Badal N'.
+      let name;
+      const fullIndex = i + 20; // 20 hardcoded drones above + i
+      if (fullIndex >= 50 && fullIndex <= 63) {
+        name = `Badal ${fullIndex - 49}`;
+      } else {
+        name = phonetic[i % phonetic.length] + '-' + idx;
+      }
       return {
         id: idx,
-        name: phonetic[i % phonetic.length] + '-' + idx,
+        name,
         type: types[i % types.length],
         battery: Math.round(70 + Math.random() * 30),
         status: 'Active',
@@ -647,6 +664,105 @@ const DroneDashboard = (props) => {
     addLog('operator', `Focused on ${marker.name || marker.type || 'marker'}`);
   };
 
+  // Helper to get custom display name for first 50 drones
+  const getCustomDroneName = (drone, idx) => {
+    if (idx < 10) return `Pinaak ${idx + 1}`;
+    if (idx < 20) return `Akash ${idx - 9}`;
+    if (idx < 30) return `Prithvi ${idx - 19}`;
+    if (idx < 40) return `Arjun ${idx - 29}`;
+    if (idx < 50) return `Karna ${idx - 39}`;
+    return drone.name;
+  };
+
+  const [telemetry, setTelemetry] = useState({});
+
+  useEffect(() => {
+    // WebSocket se real-time telemetry update (demo fallback)
+    const ws = new WebSocket('ws://localhost:8080');
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === 'telemetry') {
+        setTelemetry(prev => ({
+          ...prev,
+          [data.droneId]: data
+        }));
+      }
+    };
+    return () => ws.close();
+  }, []);
+
+  const [selectedControlDrone, setSelectedControlDrone] = useState(null);
+  const wsControlRef = useRef(null);
+
+  useEffect(() => {
+    wsControlRef.current = new WebSocket('ws://localhost:8080');
+    return () => wsControlRef.current && wsControlRef.current.close();
+  }, []);
+
+  const sendDroneCommand = (droneId, command, params = {}) => {
+    if (wsControlRef.current && wsControlRef.current.readyState === 1) {
+      wsControlRef.current.send(JSON.stringify({
+        type: 'command',
+        droneId,
+        command,
+        params
+      }));
+    } else {
+      alert('WebSocket not connected.');
+    }
+  };
+
+  const [selectedVideoDrone, setSelectedVideoDrone] = useState(null);
+  const [videoMode, setVideoMode] = useState('normal'); // 'normal' or 'thermal'
+  const [isRecording, setIsRecording] = useState(false);
+  const videoRef = useRef(null);
+
+  const handleScreenshot = () => {
+    if (!videoRef.current) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+    const url = canvas.toDataURL('image/png');
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${selectedVideoDrone?.name || 'drone'}_${videoMode}_screenshot.png`;
+    a.click();
+  };
+
+  const handleRecord = () => {
+    // Demo: Just toggle recording state
+    setIsRecording(r => !r);
+    // Real: Use MediaRecorder API for actual recording
+  };
+
+  const [swarmRoles, setSwarmRoles] = useState({});
+  const [swarmMissionStatus, setSwarmMissionStatus] = useState('Idle');
+  const [collisionStatus, setCollisionStatus] = useState('Clear');
+
+  const handleRoleChange = (droneId, newRole) => {
+    setSwarmRoles(r => ({ ...r, [droneId]: newRole }));
+  };
+
+  const handleAssignRole = (droneId) => {
+    // Demo: Just update local state
+    setSwarmRoles(r => ({ ...r, [droneId]: r[droneId] || 'Scout' }));
+  };
+
+  const handleSwarmMission = () => {
+    setSwarmMissionStatus('Executing...');
+    setTimeout(() => setSwarmMissionStatus('Idle'), 2000);
+  };
+
+  useEffect(() => {
+    // Demo: Random collision status
+    const interval = setInterval(() => {
+      setCollisionStatus(Math.random() < 0.9 ? 'Clear' : 'Warning: Potential Collision!');
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="dashboard-container" style={{ position: 'relative' }}>
       {/* Futuristic animated background grid */}
@@ -928,14 +1044,14 @@ const DroneDashboard = (props) => {
           )}
           <button onClick={simulateKamikazeStrike} style={{marginBottom:8, background:'#ff4444', color:'#fff', border:'none', borderRadius:6, padding:'6px 14px', fontWeight:700, cursor:'pointer', fontSize:15, position:'absolute', top:54, right:10, zIndex:10}}>Simulate Kamikaze Strike</button>
           <div className="fleet-grid">
-            {dronesWithHierarchy.map(drone => (
+            {dronesWithHierarchy.map((drone, idx) => (
               <div 
                 key={drone.id} 
                 className={`fleet-item ${selectedDrone?.id === drone.id ? 'selected' : ''} ${drone.isHead ? 'head-drone' : ''} ${drone.isSuperHead ? 'super-head-drone' : ''} ${drone.isUltimateHead ? 'ultimate-head-drone' : ''}`}
                 onClick={() => setSelectedDrone(drone)}
               >
                 <div className="fleet-header">
-                  <span className="fleet-name">{drone.name}</span>
+                  <span className="fleet-name">{getCustomDroneName(drone, idx)}</span>
                   <span className="fleet-type">{drone.type}</span>
                   {drone.isSuperHead && <span style={{marginLeft:8, color:'#ffd600', fontWeight:700}} title="Super Head">★ Super Head</span>}
                   {!drone.isSuperHead && drone.isHead && <span style={{marginLeft:8, color:'#00bcd4', fontWeight:700}} title="Group Head">● Head</span>}
@@ -1782,7 +1898,15 @@ const DroneDashboard = (props) => {
         <ThreeDGlobePanel
           drones={dronesWithHierarchy}
           threats={[
-            ...landmines.map(l => ({ type: 'landmine', x: l.x, y: l.y })),
+            // Real threats from alerts (convert to lat/lon if possible, else use demo)
+            ...((alerts || []).filter(alert => ['Threat', 'Intrusion', 'System', 'illegal', 'unauthorized'].includes(alert.type)).map((alert, i) => ({
+              type: alert.type === 'Threat' ? 'Vehicle' : alert.type === 'Intrusion' ? 'Personnel' : 'Equipment',
+              x: 77.2 + (i * 0.2), // Demo: spread out in longitude
+              y: 28.6 + (i * 0.2), // Demo: spread out in latitude
+              severity: alert.severity || 'Medium',
+              description: alert.description || '',
+            }))),
+            ...landmines.map(l => ({ type: 'landmine', x: l.location?.lng || l.x, y: l.location?.lat || l.y })),
             ...tanks.map(t => ({ type: 'tank', x: t.x, y: t.y })),
             ...aircraft.map(a => ({ type: 'aircraft', x: a.x, y: a.y })),
             ...airDefenses.map(a => ({ type: 'airdefense', x: a.x, y: a.y })),
@@ -1790,7 +1914,6 @@ const DroneDashboard = (props) => {
             ...missiles.map(m => ({ type: 'missile', x: m.x, y: m.y })),
             ...enemyPredictions.map(p => ({
               type: `predicted-${p.type.toLowerCase()}`,
-              x: p.longitude,
               y: p.latitude,
               confidence: p.confidence
             })),
@@ -1804,22 +1927,6 @@ const DroneDashboard = (props) => {
           ]}
           focusedDrone={focusedDrone}
           onMarkerClick={handleMapMarkerClick}
-        />
-      </div>
-      {/* Floating mini 3D map for quick threat context */}
-      <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 1000, boxShadow: '0 4px 24px #000a', borderRadius: 14, overflow: 'hidden', background: '#23272f' }}>
-        <ThreeDGlobePanel
-          detections={[
-            ...detections,
-            ...landmines.map(l => ({ type: 'landmine', x: l.x, y: l.y })),
-            ...tanks.map(t => ({ type: 'tank', x: t.x, y: t.y })),
-            ...aircraft.map(a => ({ type: 'aircraft', x: a.x, y: a.y })),
-            ...airDefenses.map(a => ({ type: 'airdefense', x: a.x, y: a.y })),
-            ...radars.map(r => ({ type: 'radar', x: r.x, y: r.y })),
-            ...missiles.map(m => ({ type: 'missile', x: m.x, y: m.y })),
-          ]}
-          mini
-          indiaOverlay
         />
       </div>
       {/* Operator/Command Log Panel */}
@@ -1852,6 +1959,134 @@ const DroneDashboard = (props) => {
             </div>
           ))}
         </div>
+      </div>
+      <div className="telemetry-dashboard" style={{marginBottom: 32}}>
+        <h3>Live Drone Telemetry</h3>
+        <div style={{display:'flex',flexWrap:'wrap',gap:16}}>
+        {props.drones.map(drone => {
+          const t = telemetry[drone.name] || drone.telemetry || {};
+          return (
+            <div key={drone.id} className="telemetry-card" style={{border:'1px solid #00d4ff',borderRadius:8,padding:12,minWidth:220,background:'#101c28'}}>
+              <div><b>{drone.name}</b></div>
+              <div>GPS: {drone.location?.lat}, {drone.location?.lng}</div>
+              <div>Altitude: {t.altitude} m</div>
+              <div>Speed: {t.speed} km/h</div>
+              <div>Battery: {t.battery}%</div>
+              <div>Signal: {t.signal}%</div>
+              <div>Heading: {t.heading}°</div>
+              <div>Orientation: {t.orientation}</div>
+              <div>Flight Mode: {t.mode}</div>
+            </div>
+          );
+        })}
+        </div>
+      </div>
+      {/* Drone Control & Command Panel */}
+      <div className="drone-control-panel" style={{marginBottom: 32, background:'#181c24', borderRadius:12, padding:20, boxShadow:'0 2px 12px #00d4ff22'}}>
+        <h3>Drone Control & Command Panel</h3>
+        <div style={{marginBottom:12}}>
+          <label>Select Drone: </label>
+          <select value={selectedControlDrone?.id || ''} onChange={e => setSelectedControlDrone(props.drones.find(d => d.id === Number(e.target.value)))}>
+            <option value="">-- Select --</option>
+            {props.drones.map(drone => (
+              <option key={drone.id} value={drone.id}>{drone.name}</option>
+            ))}
+          </select>
+        </div>
+        <div style={{display:'flex',flexWrap:'wrap',gap:12}}>
+          <button onClick={() => sendDroneCommand(selectedControlDrone?.name, 'takeoff')} disabled={!selectedControlDrone}>Takeoff</button>
+          <button onClick={() => sendDroneCommand(selectedControlDrone?.name, 'land')} disabled={!selectedControlDrone}>Land</button>
+          <button onClick={() => sendDroneCommand(selectedControlDrone?.name, 'hover')} disabled={!selectedControlDrone}>Hover</button>
+          <button onClick={() => sendDroneCommand(selectedControlDrone?.name, 'rth')} disabled={!selectedControlDrone}>Return to Home</button>
+          <button onClick={() => sendDroneCommand(selectedControlDrone?.name, 'arm')} disabled={!selectedControlDrone}>Arm</button>
+          <button onClick={() => sendDroneCommand(selectedControlDrone?.name, 'disarm')} disabled={!selectedControlDrone}>Disarm</button>
+          <button onClick={() => sendDroneCommand(selectedControlDrone?.name, 'override')} disabled={!selectedControlDrone}>Manual Override</button>
+          <button onClick={() => sendDroneCommand(selectedControlDrone?.name, 'kamikaze')} disabled={!selectedControlDrone}>Kamikaze Activation</button>
+          <button onClick={() => sendDroneCommand(selectedControlDrone?.name, 'emergency_land')} disabled={!selectedControlDrone}>Emergency Land</button>
+        </div>
+      </div>
+      {/* Live Video + Thermal Feed Viewer */}
+      <div className="video-feed-panel" style={{marginBottom: 32, background:'#181c24', borderRadius:12, padding:20, boxShadow:'0 2px 12px #00d4ff22'}}>
+        <h3>Live Video + Thermal Feed Viewer</h3>
+        <div style={{marginBottom:12}}>
+          <label>Select Drone: </label>
+          <select value={selectedVideoDrone?.id || ''} onChange={e => setSelectedVideoDrone(props.drones.find(d => d.id === Number(e.target.value)))}>
+            <option value="">-- Select --</option>
+            {props.drones.map(drone => (
+              <option key={drone.id} value={drone.id}>{drone.name}</option>
+            ))}
+          </select>
+          <button style={{marginLeft:16}} onClick={() => setVideoMode('normal')} disabled={videoMode==='normal'}>Normal</button>
+          <button style={{marginLeft:4}} onClick={() => setVideoMode('thermal')} disabled={videoMode==='thermal'}>Thermal</button>
+        </div>
+        {selectedVideoDrone ? (
+          <div style={{display:'flex',alignItems:'center',gap:24}}>
+            <video
+              ref={videoRef}
+              src={videoMode==='thermal' ? '/thermal_demo.mp4' : '/drone_video.mp4'}
+              width={420}
+              height={240}
+              autoPlay
+              loop
+              muted
+              style={{borderRadius:8,background:'#222',filter:videoMode==='thermal'?'grayscale(1) contrast(1.5) brightness(1.2) sepia(0.7) hue-rotate(180deg)':'none'}}
+            />
+            <div style={{display:'flex',flexDirection:'column',gap:8}}>
+              <button onClick={handleScreenshot}>Screenshot</button>
+              <button onClick={handleRecord}>{isRecording ? 'Stop Recording' : 'Record'}</button>
+              <div style={{fontSize:13,color:'#00d4ff',marginTop:8}}>{isRecording ? 'Recording...' : ''}</div>
+            </div>
+          </div>
+        ) : (
+          <div style={{color:'#888',marginTop:12}}>Select a drone to view its live video feed.</div>
+        )}
+      </div>
+      {/* Swarm Management Interface */}
+      <div className="swarm-management-panel" style={{marginBottom: 32, background:'#181c24', borderRadius:12, padding:20, boxShadow:'0 2px 12px #00d4ff22'}}>
+        <h3>Swarm Management Interface</h3>
+        <div style={{marginBottom:12}}>
+          <b>Collision Avoidance Status:</b> <span style={{color:collisionStatus==='Clear'?'#4CAF50':'#ff4444'}}>{collisionStatus}</span>
+        </div>
+        <table style={{width:'100%',marginBottom:16,background:'#101c28',borderRadius:8}}>
+          <thead>
+            <tr style={{color:'#00d4ff'}}>
+              <th>Drone</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Assign</th>
+            </tr>
+          </thead>
+          <tbody>
+            {props.drones.map(drone => (
+              <tr key={drone.id} style={{color:'#fff'}}>
+                <td>{drone.name}</td>
+                <td>
+                  <select value={swarmRoles[drone.id] || drone.role || 'Scout'} onChange={e => handleRoleChange(drone.id, e.target.value)}>
+                    <option value="Leader">Leader</option>
+                    <option value="Scout">Scout</option>
+                    <option value="Attacker">Attacker</option>
+                    <option value="Defender">Defender</option>
+                    <option value="Support">Support</option>
+                  </select>
+                </td>
+                <td>{drone.status}</td>
+                <td><button onClick={() => handleAssignRole(drone.id)}>Assign</button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <button onClick={handleSwarmMission} style={{marginBottom:12}}>Send Synchronized Mission Command</button>
+        <div style={{color:'#00d4ff',marginBottom:12}}>{swarmMissionStatus}</div>
+        {/* Simple 2D Map (demo) -- REMOVED as per user request */}
+        {/*
+        <div style={{width:420,height:220,background:'#222',borderRadius:8,position:'relative',margin:'0 auto'}}>
+          {props.drones.map((drone,i) => (
+            <div key={drone.id} style={{position:'absolute',left:`${30+Math.sin(i/props.drones.length*2*Math.PI)*160}px`,top:`${100+Math.cos(i/props.drones.length*2*Math.PI)*80}px`,width:32,height:32,background:'#00d4ff',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:700,border:'2px solid #fff'}} title={drone.name}>
+              {drone.name[0]}
+            </div>
+          ))}
+        </div>
+        */}
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './SurveillanceMap.css';
 
 const SurveillanceMap = () => {
+  // Use state for drones so they can be updated
   const [drones, setDrones] = useState([
     { id: 1, name: 'Alpha-1', x: 20, y: 30, type: 'Reconnaissance', battery: 85, status: 'Active' },
     { id: 2, name: 'Bravo-2', x: 60, y: 40, type: 'Combat', battery: 92, status: 'Active' },
@@ -11,37 +12,33 @@ const SurveillanceMap = () => {
     { id: 6, name: 'Foxtrot-6', x: 70, y: 60, type: 'Multi-Role', battery: 82, status: 'Active' }
   ]);
 
-  const [threats, setThreats] = useState([
+  const [threats] = useState([
     { id: 1, x: 45, y: 35, type: 'Vehicle', severity: 'High', description: 'Unauthorized vehicle' },
     { id: 2, x: 75, y: 45, type: 'Personnel', severity: 'Medium', description: 'Suspicious activity' },
     { id: 3, x: 25, y: 65, type: 'Equipment', severity: 'Low', description: 'Unknown equipment' }
   ]);
 
-  const [landmines, setLandmines] = useState([
+  const [landmines] = useState([
     { id: 1, x: 35, y: 25, type: 'Anti-Tank', confidence: 95 },
     { id: 2, x: 65, y: 55, type: 'Anti-Personnel', confidence: 87 },
     { id: 3, x: 55, y: 75, type: 'Anti-Tank', confidence: 92 }
   ]);
 
-  const [patrolRoutes, setPatrolRoutes] = useState([
+  const [patrolRoutes] = useState([
     { id: 1, points: [[10, 20], [30, 40], [50, 30], [70, 50], [90, 40]], active: true },
     { id: 2, points: [[20, 80], [40, 60], [60, 80], [80, 60]], active: false }
   ]);
 
   const [selectedDrone, setSelectedDrone] = useState(null);
-  const [mapMode, setMapMode] = useState('normal'); // normal, thermal, night
+  const [mapMode, setMapMode] = useState('normal');
   const [zoom, setZoom] = useState(1);
+  const mapRef = useRef(null);
 
   useEffect(() => {
+    // Only animate drones if needed in demo mode
     const interval = setInterval(() => {
-      setDrones(prev => prev.map(drone => ({
-        ...drone,
-        x: Math.max(5, Math.min(95, drone.x + (Math.random() - 0.5) * 4)),
-        y: Math.max(5, Math.min(95, drone.y + (Math.random() - 0.5) * 4)),
-        battery: Math.max(0, drone.battery - Math.random() * 1)
-      })));
+      // No-op for static demo
     }, 3000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -60,22 +57,21 @@ const SurveillanceMap = () => {
     return '#00d4ff';
   };
 
-  const handleDroneClick = (drone) => {
+  const handleDroneClick = (drone, e) => {
+    e.stopPropagation(); // Prevent map click
     setSelectedDrone(drone);
   };
 
   const handleMapClick = (e) => {
-    const rect = e.currentTarget.getBoundingClientRect();
+    if (!selectedDrone || !mapRef.current) return;
+    // Get bounding rect of map
+    const rect = mapRef.current.getBoundingClientRect();
+    // Calculate click position as percent of map
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-    
-    if (selectedDrone) {
-      setDrones(prev => prev.map(drone => 
-        drone.id === selectedDrone.id 
-          ? { ...drone, x, y }
-          : drone
-      ));
-    }
+    // Update selected drone's position
+    setDrones(ds => ds.map(d => d.id === selectedDrone.id ? { ...d, x, y } : d));
+    // Do NOT deselect after move
   };
 
   return (
@@ -101,7 +97,6 @@ const SurveillanceMap = () => {
             Night Vision
           </button>
         </div>
-        
         <div className="control-group">
           <button 
             className="control-btn"
@@ -118,10 +113,10 @@ const SurveillanceMap = () => {
           </button>
         </div>
       </div>
-
       <div className="map-content">
         <div 
           className={`surveillance-map ${mapMode}`}
+          ref={mapRef}
           onClick={handleMapClick}
           style={{ transform: `scale(${zoom})` }}
         >
@@ -140,7 +135,6 @@ const SurveillanceMap = () => {
               </React.Fragment>
             ))}
           </div>
-
           {/* Patrol Routes */}
           {patrolRoutes.map(route => (
             <div key={route.id} className={`patrol-route ${route.active ? 'active' : ''}`}>
@@ -155,7 +149,6 @@ const SurveillanceMap = () => {
               </svg>
             </div>
           ))}
-
           {/* Landmines */}
           {landmines.map(mine => (
             <div
@@ -168,7 +161,6 @@ const SurveillanceMap = () => {
               <div className="mine-confidence">{mine.confidence}%</div>
             </div>
           ))}
-
           {/* Threats */}
           {threats.map(threat => (
             <div
@@ -188,7 +180,6 @@ const SurveillanceMap = () => {
               <div className="threat-severity">{threat.severity}</div>
             </div>
           ))}
-
           {/* Drones */}
           {drones.map(drone => (
             <div
@@ -199,7 +190,7 @@ const SurveillanceMap = () => {
                 top: `${drone.y}%`,
                 borderColor: getDroneColor(drone)
               }}
-              onClick={() => handleDroneClick(drone)}
+              onClick={e => handleDroneClick(drone, e)}
               title={`${drone.name} - ${drone.type} - Battery: ${drone.battery.toFixed(1)}%`}
             >
               <div className="drone-icon">🛸</div>
@@ -209,7 +200,6 @@ const SurveillanceMap = () => {
               </div>
             </div>
           ))}
-
           {/* Sector Boundaries */}
           <div className="sector-boundaries">
             <div className="sector sector-a" title="Sector A - Primary Surveillance">
@@ -227,7 +217,6 @@ const SurveillanceMap = () => {
           </div>
         </div>
       </div>
-
       {/* Map Legend */}
       <div className="map-legend">
         <div className="legend-item">
@@ -247,7 +236,6 @@ const SurveillanceMap = () => {
           <span>Patrol Routes</span>
         </div>
       </div>
-
       {/* Selected Drone Info */}
       {selectedDrone && (
         <div className="drone-info-panel">

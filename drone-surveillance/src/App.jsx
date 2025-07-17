@@ -7,128 +7,80 @@ import AlertPanel from './components/AlertPanel'
 import DroneControls from './components/DroneControls'
 import ControlPanel from './components/ControlPanel'
 import VideoDetectionSimulator from './components/VideoDetectionSimulator'
+import DefenseSystems from './components/DefenseSystems'
+import AnalyticsDashboard from './components/AnalyticsDashboard'
+import AIDescriptionUpload from './components/AIDescriptionUpload'
+import DroneWebSocketManager from './components/DroneWebSocketManager'
+import AIOutputPortal from './components/AIOutputPortal';
+import MissionMappingPortal from './components/MissionMappingPortal';
+import SecurityPortal from './components/SecurityPortal';
+import MissionHistoryPortal from './components/MissionHistoryPortal';
+import FirmwareManagementPortal from './components/FirmwareManagementPortal';
+import EmergencyControlsPortal from './components/EmergencyControlsPortal';
+import IntegrationPortal from './components/IntegrationPortal';
+import SwarmAISyncPortal from './components/SwarmAISyncPortal';
+import IFFPortal from './components/IFFPortal';
+import OTAManagementPortal from './components/OTAManagementPortal';
+import MissionLogsPortal from './components/MissionLogsPortal';
+import SimulationPortal from './components/SimulationPortal';
+import SwarmVisualizerPortal from './components/SwarmVisualizerPortal';
 
-const initialDrones = [
+// Default drone fleet for initial state
+const defaultDrones = [
   {
     id: 1,
     name: 'Alpha-1',
-    type: 'Surveillance',
+    type: 'Reconnaissance',
     battery: 85,
-    altitude: 120,
-    speed: 25,
-    location: { lat: 28.6139, lng: 77.2090 },
+    altitude: 1200,
+    maxAltitude: 2000,
+    speed: 45,
+    maxSpeed: 120,
+    range: 30,
     isActive: true,
-    capabilities: ['HD Camera', 'Night Vision', 'GPS Tracking', '3D Mapping'],
-    maxAltitude: 200,
-    maxSpeed: 50,
-    range: 15,
-    payload: '4K Camera + 3D Scanner',
     isHeadDrone: true,
-    isUltimateHead: true,
+    jammingStatus: 'STANDBY',
     threatLevel: 'LOW',
-    jammingStatus: 'STANDBY'
+    location: { lat: 28.6139, lng: 77.2090 },
   },
   {
     id: 2,
     name: 'Bravo-2',
-    type: 'Thermal',
+    type: 'Combat',
     battery: 92,
-    altitude: 100,
-    speed: 20,
-    location: { lat: 28.6239, lng: 77.2190 },
-    isActive: false,
-    capabilities: ['Thermal Imaging', 'Heat Detection', 'Long Range', 'Landmine Detection'],
-    maxAltitude: 150,
-    maxSpeed: 40,
-    range: 20,
-    payload: 'Thermal Camera + Mine Detector',
+    altitude: 800,
+    maxAltitude: 1800,
+    speed: 60,
+    maxSpeed: 140,
+    range: 25,
+    isActive: true,
     isHeadDrone: false,
-    isUltimateHead: false,
-    threatLevel: 'LOW',
-    jammingStatus: 'STANDBY'
+    jammingStatus: 'STANDBY',
+    threatLevel: 'MEDIUM',
+    location: { lat: 28.6145, lng: 77.2100 },
   },
   {
     id: 3,
     name: 'Charlie-3',
-    type: 'Emergency Response',
+    type: 'Surveillance',
     battery: 78,
-    altitude: 80,
+    altitude: 1500,
+    maxAltitude: 2200,
     speed: 35,
-    location: { lat: 28.6339, lng: 77.2290 },
-    isActive: true,
-    capabilities: ['High Speed', 'Emergency Lights', 'Loudspeaker', 'Jamming System'],
-    maxAltitude: 300,
-    maxSpeed: 80,
-    range: 25,
-    payload: 'Emergency Kit + Jammer',
-    isHeadDrone: false,
-    isUltimateHead: false,
-    threatLevel: 'MEDIUM',
-    jammingStatus: 'ACTIVE'
-  },
-  {
-    id: 4,
-    name: 'Delta-4',
-    type: 'Patrol',
-    battery: 95,
-    altitude: 150,
-    speed: 30,
-    location: { lat: 28.6439, lng: 77.2390 },
-    isActive: true,
-    capabilities: ['Auto Patrol', 'Obstacle Avoidance', 'Extended Battery', 'Threat Analysis'],
-    maxAltitude: 250,
-    maxSpeed: 45,
-    range: 30,
-    payload: 'Multi-Sensor Array + AI',
-    isHeadDrone: false,
-    isUltimateHead: false,
-    threatLevel: 'LOW',
-    jammingStatus: 'STANDBY'
-  },
-  {
-    id: 5,
-    name: 'Echo-5',
-    type: 'Reconnaissance',
-    battery: 88,
-    altitude: 200,
-    speed: 40,
-    location: { lat: 28.6539, lng: 77.2490 },
-    isActive: false,
-    capabilities: ['Stealth Mode', 'High Altitude', 'Advanced Optics', '3D Terrain Mapping'],
-    maxAltitude: 500,
-    maxSpeed: 60,
+    maxSpeed: 100,
     range: 40,
-    payload: 'Zoom Camera + 3D Scanner',
+    isActive: true,
     isHeadDrone: false,
-    isUltimateHead: false,
+    jammingStatus: 'STANDBY',
     threatLevel: 'LOW',
-    jammingStatus: 'STANDBY'
+    location: { lat: 28.6150, lng: 77.2080 },
   },
-  {
-    id: 6,
-    name: 'Foxtrot-6',
-    type: 'Cargo',
-    battery: 70,
-    altitude: 60,
-    speed: 15,
-    location: { lat: 28.6639, lng: 77.2590 },
-    isActive: false,
-    capabilities: ['Heavy Lift', 'Cargo Bay', 'Stable Flight', 'Weapon System'],
-    maxAltitude: 100,
-    maxSpeed: 25,
-    range: 10,
-    payload: 'Cargo Container + Missiles',
-    isHeadDrone: false,
-    isUltimateHead: false,
-    threatLevel: 'HIGH',
-    jammingStatus: 'STANDBY'
-  }
-]
+];
 
 function App() {
   const [currentView, setCurrentView] = useState('dashboard')
   const [alerts, setAlerts] = useState([])
-  const [drones, setDrones] = useState(initialDrones)
+  const [drones, setDrones] = useState(defaultDrones)
   const [selectedDroneId, setSelectedDroneId] = useState(1)
   const [systemStatus, setSystemStatus] = useState({
     weather: 'Clear',
@@ -149,41 +101,12 @@ function App() {
     destructionAuthorized: false
   })
   const [landmines, setLandmines] = useState([])
-  const [threeDMap, setThreeDMap] = useState({
-    isActive: false,
-    coverage: 0,
-    resolution: 'HIGH',
-    lastUpdate: new Date().toLocaleTimeString()
-  })
   const [detections, setDetections] = useState([])
-  const [airDefenses, setAirDefenses] = useState([]);
-  const [radars, setRadars] = useState([]);
-  const [missiles, setMissiles] = useState([]);
 
   const selectedDrone = drones.find(d => d.id === selectedDroneId)
 
   const updateDrone = (id, update) => {
     setDrones(ds => ds.map(d => d.id === id ? { ...d, ...update } : d))
-  }
-
-  const addAlert = (alert) => {
-    setAlerts(prev => [alert, ...prev.slice(0, 19)])
-  }
-
-  const getDroneStatusColor = (drone) => {
-    if (!drone.isActive) return '#666'
-    if (drone.battery < 20) return '#ff4444'
-    if (drone.battery < 50) return '#ff8800'
-    return '#4CAF50'
-  }
-
-  const getThreatLevelColor = (level) => {
-    switch (level) {
-      case 'HIGH': return '#ff4444'
-      case 'MEDIUM': return '#ff8800'
-      case 'LOW': return '#4CAF50'
-      default: return '#666'
-    }
   }
 
   const activateJammingSystem = () => {
@@ -199,12 +122,6 @@ function App() {
   }
 
   const start3DMapping = () => {
-    setThreeDMap(prev => ({ 
-      ...prev, 
-      isActive: true, 
-      coverage: 0,
-      lastUpdate: new Date().toLocaleTimeString()
-    }))
     alert('🗺️ 3D MAPPING INITIATED!\n\n- Terrain scanning active\n- Point cloud generation\n- Digital elevation mapping\n- Coverage: 0% (Building...)')
     
     // Simulate 3D mapping progress
@@ -216,7 +133,6 @@ function App() {
         clearInterval(interval)
         alert('✅ 3D MAPPING COMPLETE!\n\n- Coverage: 100%\n- Resolution: HIGH\n- Terrain data processed\n- Ready for analysis')
       }
-      setThreeDMap(prev => ({ ...prev, coverage: Math.min(progress, 100) }))
     }, 1000)
   }
 
@@ -260,88 +176,66 @@ function App() {
     }
   }
 
-  const destroyTarget = (targetId) => {
-    alert('💥 TARGET DESTRUCTION INITIATED!\n\n- Missile systems: FIRED\n- Target locked and tracked\n- Impact in 3... 2... 1...\n- Target eliminated successfully')
-    
-    // Remove target from alerts
-    setAlerts(prev => prev.filter(alert => alert.id !== targetId))
-    
-    // Update threat analysis
-    setThreatAnalysis(prev => ({
-      ...prev,
-      totalThreats: Math.max(0, prev.totalThreats - 1),
-      targetsIdentified: Math.max(0, prev.targetsIdentified - 1)
-    }))
-  }
-
   // Handler for drone control from ControlPanel
-  const handleDroneControl = (droneId, update) => {
-    setDrones(ds => ds.map(d => d.id === droneId ? { ...d, ...update } : d))
-  }
-
   // Handler for map control (future expansion)
-  const handleMapControl = (action, params) => {
-    // Implement as needed
-  }
-
   // Simulate detection handlers
-  const detectAirDefense = () => {
-    setAirDefenses(prev => [
-      ...prev,
-      { id: Date.now(), x: Math.random(), y: Math.random() }
-    ]);
-  };
-  const detectRadar = () => {
-    setRadars(prev => [
-      ...prev,
-      { id: Date.now(), x: Math.random(), y: Math.random() }
-    ]);
-  };
-  const detectMissile = () => {
-    setMissiles(prev => [
-      ...prev,
-      { id: Date.now(), x: Math.random(), y: Math.random() }
-    ]);
-  };
+
+  // Move mapThreats declaration before renderCurrentView
+  const mapThreats = alerts
+    .filter(alert => ['Threat', 'Intrusion', 'System', 'illegal', 'unauthorized'].includes(alert.type))
+    .map((alert, i) => ({
+      id: alert.id || i,
+      x: 10 + (i * 20) % 80, // Demo: spread out
+      y: 20 + (i * 30) % 60,
+      type: alert.type === 'Threat' ? 'Vehicle' : alert.type === 'Intrusion' ? 'Personnel' : 'Equipment',
+      severity: alert.severity || 'Medium',
+      description: alert.description || '',
+    }));
 
   const renderCurrentView = () => {
     switch (currentView) {
       case 'dashboard':
-        return <DroneDashboard 
-          droneStatus={selectedDrone} 
+        return (
+          <DroneDashboard 
+            drones={drones}
+            setDrones={setDrones}
           alerts={alerts} 
+            setAlerts={setAlerts}
           systemStatus={systemStatus}
-          threatAnalysis={threatAnalysis}
-          threeDMap={threeDMap}
-          landmines={landmines}
-          onDestroyTarget={destroyTarget}
-          detections={detections}
+            setSystemStatus={setSystemStatus}
         />
+        )
       case 'map':
-        return <SurveillanceMap 
-          droneStatus={selectedDrone} 
-          onAlert={addAlert} 
+        return (
+          <SurveillanceMap 
           drones={drones} 
-          systemStatus={systemStatus}
+            threats={mapThreats}
           landmines={landmines}
-          threeDMap={threeDMap}
+            detections={detections}
+            airDefenses={[]}
+            radars={[]}
+            missiles={[]}
+            onMapControl={() => {}}
         />
+        )
       case 'thermal':
-        return <ThermalView 
-          onAlert={addAlert} 
+        return (
+          <ThermalView 
           drones={drones}
-          landmines={landmines}
+            systemStatus={systemStatus}
         />
+        )
       case 'alerts':
-        return <AlertPanel 
+        return (
+          <AlertPanel 
           alerts={alerts}
-          onDestroyTarget={destroyTarget}
-          threatAnalysis={threatAnalysis}
         />
+        )
       case 'controls':
-        return <DroneControls 
+        return (
+          <DroneControls 
           droneStatus={selectedDrone} 
-          setDroneStatus={update => updateDrone(selectedDrone.id, update)} 
+            setDroneStatus={(update) => updateDrone(selectedDroneId, update)}
           systemStatus={systemStatus}
           onActivateJamming={activateJammingSystem}
           onDeactivateJamming={deactivateJammingSystem}
@@ -349,79 +243,181 @@ function App() {
           onDetectLandmines={detectLandmines}
           onAnalyzeThreats={analyzeThreatLevel}
         />
-      case 'control-panel':
-        return <ControlPanel 
-          drones={drones} 
-          systemStatus={systemStatus} 
-          onDroneControl={handleDroneControl} 
-          onMapControl={handleMapControl} 
+        )
+      case 'video':
+        return (
+          <VideoDetectionSimulator 
+            onHumanCountChange={(count) => console.log('Human count:', count)}
+            onDetections={(detections) => setDetections(prev => [...prev, ...detections])}
         />
-      case 'video-simulation':
-        return <VideoDetectionSimulator onDetections={setDetections} />
+        )
+      case 'defense':
+        return <DefenseSystems />
+      case 'analytics':
+        return <AnalyticsDashboard />
+      case 'ai-detection':
+        return <AIDescriptionUpload />
+      case 'ai-output':
+        return <AIOutputPortal />
+      case 'mission-mapping':
+        return <MissionMappingPortal />
+      case 'security':
+        return <SecurityPortal />
+      case 'mission-history':
+        return <MissionHistoryPortal />
+      case 'firmware-management':
+        return <FirmwareManagementPortal />
+      case 'emergency-controls':
+        return <EmergencyControlsPortal />
+      case 'integration':
+        return <IntegrationPortal />
+      case 'swarm-ai-sync':
+        return <SwarmAISyncPortal />
+      case 'iff':
+        return <IFFPortal />
+      case 'SwarmCoordination':
+        return <SwarmCoordinationPortal />;
+      case 'IFF':
+        return <IFFPortal />;
+      case 'OTA':
+        return <OTAManagementPortal />;
+      case 'MissionLogs':
+        return <MissionLogsPortal />;
+      case 'Simulation':
+        return <SimulationPortal />;
+      case 'SwarmVisualizer':
+        return <SwarmVisualizerPortal />;
       default:
-        return <DroneDashboard />
+        return (
+          <DroneDashboard 
+            drones={drones}
+            alerts={alerts}
+            systemStatus={systemStatus}
+            threatAnalysis={threatAnalysis}
+            onDroneSelect={setSelectedDroneId}
+            selectedDroneId={selectedDroneId}
+          />
+        )
     }
   }
 
   return (
     <div className="app">
       <header className="header">
-        <h1>Border Security Drone Surveillance</h1>
+        <h1>🛸 Advanced Drone Surveillance System</h1>
         <nav className="nav">
           <button 
             className={`nav-button ${currentView === 'dashboard' ? 'active' : ''}`}
             onClick={() => setCurrentView('dashboard')}
           >
-            Dashboard
+            📊 Dashboard
           </button>
           <button 
             className={`nav-button ${currentView === 'map' ? 'active' : ''}`}
             onClick={() => setCurrentView('map')}
           >
-            Surveillance Map
+            🗺️ Surveillance Map
           </button>
           <button 
             className={`nav-button ${currentView === 'thermal' ? 'active' : ''}`}
             onClick={() => setCurrentView('thermal')}
           >
-            Thermal View
+            🔥 Thermal View
           </button>
           <button 
             className={`nav-button ${currentView === 'alerts' ? 'active' : ''}`}
             onClick={() => setCurrentView('alerts')}
           >
-            Alerts
+            🚨 Alerts
           </button>
           <button 
             className={`nav-button ${currentView === 'controls' ? 'active' : ''}`}
             onClick={() => setCurrentView('controls')}
           >
-            Drone Controls
+            🎮 Controls
           </button>
           <button 
-            className={`nav-button ${currentView === 'control-panel' ? 'active' : ''}`}
-            onClick={() => setCurrentView('control-panel')}
+            className={`nav-button ${currentView === 'video' ? 'active' : ''}`}
+            onClick={() => setCurrentView('video')}
           >
-            Control Panel
+            📹 Video Detection
           </button>
           <button 
-            className={`nav-button ${currentView === 'video-simulation' ? 'active' : ''}`}
-            onClick={() => setCurrentView('video-simulation')}
+            className={`nav-button ${currentView === 'defense' ? 'active' : ''}`}
+            onClick={() => setCurrentView('defense')}
           >
-            Video Simulation
+            🛡️ Defense Systems
+          </button>
+          <button 
+  className={`nav-button ${currentView === 'analytics' ? 'active' : ''}`}
+  onClick={() => setCurrentView('analytics')}
+>
+  📊 Analytics
+</button>
+  <button 
+    className={`nav-button ${currentView === 'ai-detection' ? 'active' : ''}`}
+    onClick={() => setCurrentView('ai-detection')}
+  >
+    🤖 AI Detection
+  </button>
+  <button 
+    className={`nav-button ${currentView === 'ai-output' ? 'active' : ''}`}
+    onClick={() => setCurrentView('ai-output')}
+  >
+    🧠 AI Output
+  </button>
+  <button 
+    className={`nav-button ${currentView === 'mission-mapping' ? 'active' : ''}`}
+    onClick={() => setCurrentView('mission-mapping')}
+  >
+    🗺️ Mission Mapping
+  </button>
+  <button 
+    className={`nav-button ${currentView === 'security' ? 'active' : ''}`}
+    onClick={() => setCurrentView('security')}
+          >
+    🔒 Security
+  </button>
+  <button 
+    className={`nav-button ${currentView === 'mission-history' ? 'active' : ''}`}
+    onClick={() => setCurrentView('mission-history')}
+  >
+    📜 Mission History
+  </button>
+  <button 
+    className={`nav-button ${currentView === 'firmware-management' ? 'active' : ''}`}
+    onClick={() => setCurrentView('firmware-management')}
+  >
+    🛠️ Firmware Management
+  </button>
+  <button 
+    className={`nav-button ${currentView === 'emergency-controls' ? 'active' : ''}`}
+    onClick={() => setCurrentView('emergency-controls')}
+  >
+    🚨 Emergency Controls
+  </button>
+  <button 
+    className={`nav-button ${currentView === 'integration' ? 'active' : ''}`}
+    onClick={() => setCurrentView('integration')}
+          >
+    🔗 Integration
+  </button>
+  <button 
+    className={`nav-button ${currentView === 'swarm-ai-sync' ? 'active' : ''}`}
+    onClick={() => setCurrentView('swarm-ai-sync')}
+  >
+    🧬 Swarm AI Sync
+  </button>
+  <button 
+    className={`nav-button ${currentView === 'iff' ? 'active' : ''}`}
+    onClick={() => setCurrentView('iff')}
+  >
+    🆔 IFF
           </button>
         </nav>
       </header>
-      
       <main className="main-content">
-        {renderCurrentView({
-          airDefenses,
-          radars,
-          missiles,
-          detectAirDefense,
-          detectRadar,
-          detectMissile,
-        })}
+  {renderCurrentView()}
       </main>
     </div>
   )

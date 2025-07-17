@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
-import droneVideo from '../assets/drone_video.mp4'
+import { useState, useEffect } from 'react'
 import VideoDetectionSimulator from './VideoDetectionSimulator'
 
 const DroneSimulationPanel = () => {
@@ -44,14 +43,8 @@ const DroneSimulationPanel = () => {
   )
 }
 
-const ControlPanel = ({ drones, systemStatus, onDroneControl, onMapControl }) => {
+const ControlPanel = ({ drones, onDroneControl }) => {
   const [selectedDrone, setSelectedDrone] = useState(drones[0])
-  const [mapView, setMapView] = useState('satellite') // satellite, thermal, night, 3d
-  const [controlMode, setControlMode] = useState('manual') // manual, auto, emergency
-  const [joystickPosition, setJoystickPosition] = useState({ x: 0, y: 0 })
-  const [cameraPosition, setCameraPosition] = useState({ pan: 0, tilt: 0, zoom: 1 })
-  const [liveFeed, setLiveFeed] = useState(true)
-  const [recording, setRecording] = useState(false)
 
   // 3D Mapping
   const [mappingActive, setMappingActive] = useState(false)
@@ -150,81 +143,15 @@ const ControlPanel = ({ drones, systemStatus, onDroneControl, onMapControl }) =>
     setThreatSummary(summary)
   }
 
-  const handleJoystickMove = (direction) => {
-    const speed = 5
-    let newX = joystickPosition.x
-    let newY = joystickPosition.y
-
-    switch (direction) {
-      case 'up':
-        newY = Math.max(-100, joystickPosition.y - speed)
-        break
-      case 'down':
-        newY = Math.min(100, joystickPosition.y + speed)
-        break
-      case 'left':
-        newX = Math.max(-100, joystickPosition.x - speed)
-        break
-      case 'right':
-        newX = Math.min(100, joystickPosition.x + speed)
-        break
-      default:
-        break
-    }
-
-    setJoystickPosition({ x: newX, y: newY })
-    
-    // Apply movement to drone
-    if (selectedDrone.isActive) {
-      const newLocation = {
-        lat: selectedDrone.location.lat + (newY / 1000),
-        lng: selectedDrone.location.lng + (newX / 1000)
-      }
-      onDroneControl(selectedDrone.id, { location: newLocation })
-    }
-  }
-
-  const handleCameraControl = (axis, value) => {
-    setCameraPosition(prev => ({
-      ...prev,
-      [axis]: Math.max(-100, Math.min(100, prev[axis] + value))
-    }))
-  }
-
-  const handleDroneAction = (action) => {
-    switch (action) {
-      case 'takeoff':
-        onDroneControl(selectedDrone.id, { isActive: true, altitude: 50 })
-        break
-      case 'land':
-        onDroneControl(selectedDrone.id, { isActive: false, altitude: 0 })
-        break
-      case 'emergency':
-        onDroneControl(selectedDrone.id, { isActive: false, altitude: 0, speed: 0 })
-        break
-      case 'patrol':
-        setControlMode('auto')
-        break
-      case 'manual':
-        setControlMode('manual')
-        break
-      default:
-        break
-    }
-  }
-
-  const getMapStyle = () => {
-    switch (mapView) {
-      case 'thermal':
-        return { filter: 'hue-rotate(180deg) saturate(2)' }
-      case 'night':
-        return { filter: 'brightness(0.3) contrast(1.5)' }
-      case '3d':
-        return { filter: 'contrast(1.2) saturate(1.5)' }
-      default:
-        return {}
-    }
-  }
+  // Helper to get custom display name for first 50 drones
+  const getCustomDroneName = (drone, idx) => {
+    if (idx < 10) return `Pinaak ${idx + 1}`;
+    if (idx < 20) return `Akash ${idx - 9}`;
+    if (idx < 30) return `Prithvi ${idx - 19}`;
+    if (idx < 40) return `Arjun ${idx - 29}`;
+    if (idx < 50) return `Karna ${idx - 39}`;
+    return drone.name;
+  };
 
   return (
     <div className="control-panel" style={{ display: 'flex', flexDirection: 'row', height: '100%' }}>
@@ -233,14 +160,14 @@ const ControlPanel = ({ drones, systemStatus, onDroneControl, onMapControl }) =>
         <div className="drone-selector-panel">
           <h3>🛸 Drone Fleet</h3>
           <div className="drone-list">
-            {drones.map(drone => (
+            {drones.map((drone, idx) => (
               <div 
                 key={drone.id}
                 className={`drone-item ${selectedDrone.id === drone.id ? 'selected' : ''}`}
                 onClick={() => setSelectedDrone(drone)}
               >
                 <div className="drone-header">
-                  <span className="drone-name">{drone.name}</span>
+                  <span className="drone-name">{getCustomDroneName(drone, idx)}</span>
                   {drone.isHeadDrone && <span className="crown">👑</span>}
                   <span className={`status-indicator ${drone.isActive ? 'active' : 'inactive'}`}>
                     {drone.isActive ? '🟢' : '🔴'}
@@ -315,7 +242,7 @@ const ControlPanel = ({ drones, systemStatus, onDroneControl, onMapControl }) =>
             <span>Current Head Drone: </span>
             <select value={headDroneId} onChange={e => handleHeadDroneSwitch(Number(e.target.value))}>
               {drones.map(drone => (
-                <option key={drone.id} value={drone.id}>{drone.name}</option>
+                <option key={drone.id} value={drone.id}>{getCustomDroneName(drone, drones.findIndex(d => d.id === drone.id))}</option>
               ))}
             </select>
           </div>
@@ -386,4 +313,4 @@ const ControlPanel = ({ drones, systemStatus, onDroneControl, onMapControl }) =>
   )
 }
 
-export default ControlPanel 
+export default ControlPanel; 

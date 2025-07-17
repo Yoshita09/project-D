@@ -220,68 +220,67 @@ const AlertPanel = ({ alerts }) => {
             <p>All clear! No security threats detected.</p>
           </div>
         ) : (
-          <div className="alerts-list">
-            {sortedAlerts.map((alert, index) => (
-              <div 
-                key={index} 
-                className={`alert-card ${alert.type}`}
-                style={{ borderLeftColor: getAlertColor(alert.type) }}
-              >
-                <div className="alert-header-row">
-                  <div className="alert-icon">
-                    {getAlertIcon(alert.type)}
-                  </div>
-                  <div className="alert-info">
-                    <div className="alert-title">
-                      <span className="alert-type">{alert.type.toUpperCase()}</span>
-                      <span 
-                        className="priority-badge"
-                        style={{ backgroundColor: getPriorityColor(getPriorityLevel(alert)) }}
-                      >
-                        {getPriorityLevel(alert)}
-                      </span>
-                    </div>
-                    <div className="alert-time">{alert.timestamp}</div>
-                  </div>
-                  <div className="alert-actions">
-                    <button className="action-btn small" title="Acknowledge">✓</button>
-                    <button className="action-btn small" title="View Details">📋</button>
-                    <button className="action-btn small" title="Investigate">🔍</button>
-                  </div>
+          // Remove the alerts-list wrapper and render alert-card directly
+          sortedAlerts.map((alert, index) => (
+            <div 
+              key={index} 
+              className={`alert-card ${alert.type}`}
+              style={{ borderLeftColor: getAlertColor(alert.type) }}
+            >
+              <div className="alert-header-row">
+                <div className="alert-icon">
+                  {getAlertIcon(alert.type)}
                 </div>
-
-                <div className="alert-content">
-                  <p className="alert-message">{alert.message}</p>
-                  <div className="alert-details">
-                    <span className="detail-item">
-                      <strong>Location:</strong> {alert.location}
+                <div className="alert-info">
+                  <div className="alert-title">
+                    <span className="alert-type">{alert.type.toUpperCase()}</span>
+                    <span 
+                      className="priority-badge"
+                      style={{ backgroundColor: getPriorityColor(getPriorityLevel(alert)) }}
+                    >
+                      {getPriorityLevel(alert)}
                     </span>
-                    {alert.intensity && (
-                      <span className="detail-item">
-                        <strong>Intensity:</strong> {alert.intensity.toFixed(1)}%
-                      </span>
-                    )}
-                    {alert.temperature && (
-                      <span className="detail-item">
-                        <strong>Temperature:</strong> {alert.temperature.toFixed(1)}°C
-                      </span>
-                    )}
                   </div>
+                  <div className="alert-time">{alert.timestamp}</div>
                 </div>
-
-                <div className="alert-footer">
-                  <div className="alert-tags">
-                    <span className="tag border">Border Security</span>
-                    <span className="tag real-time">Real-time</span>
-                    {alert.type === 'illegal' && <span className="tag critical">Critical</span>}
-                  </div>
-                  <div className="alert-status">
-                    <span className="status pending">Pending Response</span>
-                  </div>
+                <div className="alert-actions">
+                  <button className="action-btn small" title="Acknowledge">✓</button>
+                  <button className="action-btn small" title="View Details">📋</button>
+                  <button className="action-btn small" title="Investigate">🔍</button>
                 </div>
               </div>
-            ))}
-          </div>
+
+              <div className="alert-content">
+                <p className="alert-message">{alert.message}</p>
+                <div className="alert-details">
+                  <span className="detail-item">
+                    <strong>Location:</strong> {alert.location}
+                  </span>
+                  {alert.intensity && (
+                    <span className="detail-item">
+                      <strong>Intensity:</strong> {alert.intensity.toFixed(1)}%
+                    </span>
+                  )}
+                  {alert.temperature && (
+                    <span className="detail-item">
+                      <strong>Temperature:</strong> {alert.temperature.toFixed(1)}°C
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="alert-footer">
+                <div className="alert-tags">
+                  <span className="tag border">Border Security</span>
+                  <span className="tag real-time">Real-time</span>
+                  {alert.type === 'illegal' && <span className="tag critical">Critical</span>}
+                </div>
+                <div className="alert-status">
+                  <span className="status pending">Pending Response</span>
+                </div>
+              </div>
+            </div>
+          ))
         )}
       </div>
 

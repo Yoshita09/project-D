@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState } from 'react';
 import droneVideo from '../assets/drone_video.mp4';
 import * as cocoSsd from '@tensorflow-models/coco-ssd';
 import '@tensorflow/tfjs';
+import { analyzeImage } from '../api/aiDetection';
 
 const BOX_COLOR = 'rgba(0, 255, 0, 0.5)';
 const HELICOPTER_COLOR = 'rgba(0, 128, 255, 0.5)';
@@ -53,6 +54,9 @@ const VideoDetectionSimulator = ({ onHumanCountChange, onDetections }) => {
   const [autoScan, setAutoScan] = useState(false);
   const [autoDetections, setAutoDetections] = useState([]); // [{type, x, y, expiresAt}]
   const [showLandmineAlert, setShowLandmineAlert] = useState(false);
+  const [aiDetections, setAIDetections] = useState([]);
+  const [aiLoading, setAILoading] = useState(false);
+  const [aiError, setAIError] = useState(null);
 
   // Load COCO-SSD model
   useEffect(() => {
@@ -299,6 +303,16 @@ const VideoDetectionSimulator = ({ onHumanCountChange, onDetections }) => {
           setTimeout(() => setShowLandmineAlert(false), 3500);
         }
       }
+      aiDetections.forEach(obj => {
+        ctx.save();
+        ctx.strokeStyle = obj.threat_level === 'High' ? '#ff4444' : '#ffeb3b';
+        ctx.lineWidth = 4;
+        ctx.strokeRect(...obj.bounding_box);
+        ctx.font = 'bold 18px Arial';
+        ctx.fillStyle = '#fff';
+        ctx.fillText(`${obj.type} (${Math.round(obj.confidence * 100)}%)`, obj.bounding_box[0], obj.bounding_box[1] - 8);
+        ctx.restore();
+      });
       setHumanCount(count);
       if (onHumanCountChange) onHumanCountChange(count);
       // Send detections to parent for 3D map
@@ -341,7 +355,7 @@ const VideoDetectionSimulator = ({ onHumanCountChange, onDetections }) => {
       cancelAnimationFrame(animationId);
       clearInterval(detectionIntervalId);
     };
-  }, [model, videoDims, useCamera, onHumanCountChange, simulateHelicopter, simulateLandmine, simulateTank, simulateSoldier, simulateAircraft, onDetections, autoDetections, showLandmineAlert]);
+  }, [model, videoDims, useCamera, onHumanCountChange, simulateHelicopter, simulateLandmine, simulateTank, simulateSoldier, simulateAircraft, onDetections, autoDetections, showLandmineAlert, aiDetections]);
 
   // Enhanced auto scan effect
   useEffect(() => {
@@ -406,9 +420,33 @@ const VideoDetectionSimulator = ({ onHumanCountChange, onDetections }) => {
     return () => clearInterval(interval);
   }, [autoScan]);
 
+  const handleAIDetect = async () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    setAILoading(true);
+    setAIError(null);
+    canvas.toBlob(async (blob) => {
+      try {
+        const result = await analyzeImage({
+          file: blob,
+          lat: 28.6139, // Replace with real drone lat if available
+          long: 77.2090, // Replace with real drone long if available
+          timestamp: new Date().toISOString(),
+        });
+        setAIDetections(result.detected_objects);
+        if (onDetections) onDetections(result.detected_objects);
+      } catch (e) {
+        setAIError(e.message);
+      } finally {
+        setAILoading(false);
+      }
+    }, 'image/jpeg');
+  };
+
   return (
     <div style={{ position: 'relative', width: '100%', maxWidth: videoDims.width, height: 'auto', margin: '0 auto' }}>
-      <div style={{ position: 'absolute', top: 10, right: 10, zIndex: 20, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      <div style={{ position: 'absolute', top: 10, left: 10, right: 10, zIndex: 30, display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
         <button
           onClick={() => setUseCamera(c => !c)}
           style={{ padding: '8px 16px', borderRadius: 6, background: useCamera ? '#1976d2' : '#555', color: '#fff', border: 'none', fontWeight: 'bold', cursor: 'pointer' }}
@@ -472,6 +510,17 @@ const VideoDetectionSimulator = ({ onHumanCountChange, onDetections }) => {
         {useCamera && !cameraActive && (
           <span style={{ color: '#ff4444', marginLeft: 12 }}>Camera not available</span>
         )}
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            onClick={handleAIDetect}
+            style={{ padding: '8px 18px', borderRadius: 6, background: '#222', color: '#fff', border: 'none', fontWeight: 'bold', cursor: 'pointer', marginRight: 0 }}
+            disabled={aiLoading}
+          >
+            {aiLoading ? 'Analyzing...' : 'Run AI Detection'}
+          </button>
+          {aiError && <span style={{ color: '#ff4444', marginLeft: 8 }}>{aiError}</span>}
+        </div>
       </div>
       <video
         ref={videoRef}
