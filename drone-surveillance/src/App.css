@@ -1,8 +1,19 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+}
+
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  width: 100%;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
 }
 
 .logo {
@@ -46,32 +57,33 @@
   min-height: 100vh;
   width: 100vw;
   display: flex;
-  flex-direction: column;
   background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
   color: #ffffff;
-  /* Remove forced overflow and max/min width/height */
-  /* overflow: auto; */
-  /* min-width: 100vw; */
-  /* max-width: 100vw; */
-  /* max-height: 100vh; */
+  position: relative;
+  overflow: hidden;
 }
 
 .header {
   background: rgba(0, 0, 0, 0.8);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1rem 2rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   z-index: 1000;
-  min-height: 70px;
-  flex-shrink: 0;
+  width: 280px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .header h1 {
-  font-size: clamp(1.2rem, 4vw, 1.8rem);
+  font-size: 1.4rem;
   font-weight: 600;
   background: linear-gradient(45deg, #00d4ff, #ff6b6b);
   -webkit-background-clip: text;
@@ -80,24 +92,139 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-bottom: 0.5rem;
+  padding: 0 1rem;
+}
+
+.header h2 {
+  font-size: 1.8 rem;
+  font-weight: 800;
+  background: linear-gradient(45deg, #00d4ff, #ff6b6b);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
+  
+  text-overflow: ellipsis;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  padding: 0 1rem;
 }
 
 .nav {
   display: flex;
-  gap: 1rem;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0 0.5rem;
 }
 
 .nav-button {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #ffffff;
-  padding: clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
+  padding: 0.75rem 1rem;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.3s ease;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.nav-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateX(4px);
+}
+
+.nav-button.active {
+  background: rgba(0, 212, 255, 0.2);
+  border-color: #00d4ff;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  margin-left: 280px;
+  width: calc(100% - 280px);
+  min-height: 100vh;
+  box-sizing: border-box;
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.main-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.emoji {
+  margin-right: 0.5rem;
+  font-size: 1.2em;
+}
+
+.nav-icon {
+  display: inline-block;
+  width: 24px;
+  text-align: center;
+  margin-right: 0.5rem;
+}
+
+/* Scrollbar styling for the sidebar */
+.header::-webkit-scrollbar {
+  width: 8px;
+}
+
+.header::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.header::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.header::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* Navigation groups */
+.nav::before {
+  content: '';
+  display: block;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0.5rem 0.5rem 1rem 0.5rem;
+}
+
+.nav::after {
+  content: '';
+  display: block;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 1rem 0.5rem;
+}
+
+.nav-button {
+  background: transparent;
+  color: #fff;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
   font-weight: 500;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -108,6 +235,22 @@
   align-items: center;
   justify-content: center;
 }
+
+/* Navigation hover effects */
+.nav-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateX(4px);
+}
+
+.nav-button.active {
+  background: rgba(0, 212, 255, 0.15);
+  border-color: #00d4ff;
+}
+
+.nav-button.active:hover {
+  background: rgba(0, 212, 255, 0.2);
+}
+
 
 .nav-button:hover {
   background: rgba(255, 255, 255, 0.2);
@@ -124,12 +267,27 @@
 
 .main-content {
   flex: 1;
-  display: flex;
-  /* Remove forced overflow and min-width/min-height */
-  /* overflow: hidden; */
+  padding: 2rem;
+  margin-left: 280px;
+  width: calc(100% - 280px);
+  min-height: 100vh;
+  box-sizing: border-box;
   position: relative;
-  /* min-height: 0; */
-  /* min-width: 0; */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.main-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
 }
 
 /* Enhanced Responsive Design */
@@ -2225,10 +2383,12 @@
   background: #333;
   outline: none;
   -webkit-appearance: none;
+  appearance: none;
 }
 
 .power-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
+  appearance: none;
   appearance: none;
   width: 20px;
   height: 20px;
