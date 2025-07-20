@@ -1,20 +1,27 @@
 .dashboard-container {
   min-height: 100vh;
-  min-width: 100vw;
-  max-width: 100vw;
+  width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
   padding: clamp(1rem, 4vw, 2.5rem);
   background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
-  overflow-x: hidden;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(clamp(320px, 28vw, 480px), 1fr));
-  gap: clamp(1.2rem, 2vw, 2.5rem);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: clamp(0.75rem, 2vw, 1.5rem);
   width: 100%;
-  max-width: 100vw;
-  grid-auto-rows: minmax(clamp(180px, 22vh, 320px), auto);
+  max-width: 100%;
+  grid-auto-rows: minmax(200px, auto);
+  align-items: start;
+  margin: 0 auto;
+  box-sizing: border-box;
+  overflow: visible;
 }
 
 .dashboard-panel {
@@ -22,13 +29,16 @@
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  padding: clamp(1.2rem, 3vw, 2rem);
+  padding: 1.2rem;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
-  min-height: clamp(160px, 18vh, 320px);
+  min-height: 160px;
   display: flex;
   flex-direction: column;
-  aspect-ratio: auto;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
 }
 
 .dashboard-panel:hover {
@@ -210,6 +220,8 @@
 /* Alerts Panel */
 .alerts-panel {
   grid-column: span 1;
+  max-height: calc(100vh - 4rem);
+  overflow: hidden;
 }
 
 .alerts-list {
@@ -218,6 +230,9 @@
   gap: clamp(0.75rem, 2vw, 1rem);
   flex: 1;
   overflow-y: auto;
+  padding-right: 0.5rem;
+  margin-right: -0.5rem;
+  height: calc(100% - 3rem);
 }
 
 .alert-item {
@@ -309,6 +324,25 @@
   font-size: clamp(0.6rem, 1.8vw, 0.8rem);
   color: #888888;
   margin-bottom: clamp(0.5rem, 1.5vw, 0.75rem);
+}
+
+/* Custom scrollbar for alerts panel */
+.alerts-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.alerts-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+}
+
+.alerts-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+
+.alerts-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 .destroy-button {
@@ -539,16 +573,20 @@
 /* Enhanced Responsive Design */
 @media (max-width: 1400px) {
   .dashboard-grid {
-    grid-template-columns: repeat(auto-fit, minmax(clamp(260px, 35vw, 400px), 1fr));
-    gap: clamp(0.8rem, 1.5vw, 1.5rem);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
   }
   
   .fleet-grid {
-    grid-template-columns: repeat(auto-fit, minmax(clamp(200px, 18vw, 250px), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   }
   
   .drone-details {
-    grid-template-columns: repeat(auto-fit, minmax(clamp(130px, 13vw, 180px), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  }
+  
+  .dashboard-panel {
+    min-height: auto;
   }
 }
 
@@ -864,4 +902,4 @@
 }
 .enemy-jamming-panel.active .jamming-toggle-button:hover {
   background: linear-gradient(90deg, #ff8888 0%, #ff4444 100%);
-} 
+}

@@ -316,118 +316,187 @@ function App() {
 
   return (
     <div className="app">
+<<<<<<< HEAD
       <div className="sidebar">
         <div className="sidebar-header">
           <h1>🛸 Advanced Drone Surveillance System</h1>
         </div>
         <nav className="sidebar-nav">
+=======
+      <header className="header">
+        <h1><span className="emoji"></span>Advanced Drone Surveillance System</h1>
+        <h2>AI-Controlled Drones</h2>
+        <nav className="nav">
+>>>>>>> ef738864ef64a52aa63efee6fe1169b5a7d731ae
           <button 
             className={`nav-button ${currentView === 'dashboard' ? 'active' : ''}`}
             onClick={() => setCurrentView('dashboard')}
           >
-            📊 Dashboard
+            <span className="nav-icon">📊</span>
+            Dashboard
           </button>
           <button 
             className={`nav-button ${currentView === 'map' ? 'active' : ''}`}
             onClick={() => setCurrentView('map')}
           >
-            🗺️ Surveillance Map
+            <span className="nav-icon">🗺️</span>
+            Surveillance Map
           </button>
           <button 
             className={`nav-button ${currentView === 'thermal' ? 'active' : ''}`}
             onClick={() => setCurrentView('thermal')}
           >
-            🔥 Thermal View
+            <span className="nav-icon">🔥</span>
+            Thermal View
           </button>
           <button 
             className={`nav-button ${currentView === 'alerts' ? 'active' : ''}`}
             onClick={() => setCurrentView('alerts')}
           >
-            🚨 Alerts
+            <span className="nav-icon">🚨</span>
+            Alerts
           </button>
           <button 
             className={`nav-button ${currentView === 'controls' ? 'active' : ''}`}
             onClick={() => setCurrentView('controls')}
           >
-            🎮 Controls
+            <span className="nav-icon">🎮</span>
+            Controls
           </button>
           <button 
             className={`nav-button ${currentView === 'video' ? 'active' : ''}`}
             onClick={() => setCurrentView('video')}
           >
-            📹 Video Detection
+            <span className="nav-icon">📹</span>
+            Video Detection
           </button>
           <button 
             className={`nav-button ${currentView === 'defense' ? 'active' : ''}`}
             onClick={() => setCurrentView('defense')}
           >
-            🛡️ Defense Systems
+            <span className="nav-icon">🛡️</span>
+            Defense Systems
           </button>
           <button 
             className={`nav-button ${currentView === 'analytics' ? 'active' : ''}`}
             onClick={() => setCurrentView('analytics')}
           >
+<<<<<<< HEAD
             📊 Analytics
+=======
+            <span className="nav-icon">📊</span>
+            Analytics
+>>>>>>> ef738864ef64a52aa63efee6fe1169b5a7d731ae
           </button>
           <button 
             className={`nav-button ${currentView === 'ai-detection' ? 'active' : ''}`}
             onClick={() => setCurrentView('ai-detection')}
           >
+<<<<<<< HEAD
             🤖 AI Detection
+=======
+            <span className="nav-icon">🤖</span>
+            AI Detection
+>>>>>>> ef738864ef64a52aa63efee6fe1169b5a7d731ae
           </button>
           <button 
             className={`nav-button ${currentView === 'ai-output' ? 'active' : ''}`}
             onClick={() => setCurrentView('ai-output')}
           >
+<<<<<<< HEAD
             🧠 AI Output
+=======
+            <span className="nav-icon">🧠</span>
+            AI Output
+>>>>>>> ef738864ef64a52aa63efee6fe1169b5a7d731ae
           </button>
           <button 
             className={`nav-button ${currentView === 'mission-mapping' ? 'active' : ''}`}
             onClick={() => setCurrentView('mission-mapping')}
           >
+<<<<<<< HEAD
             🗺️ Mission Mapping
+=======
+            <span className="nav-icon">🗺️</span>
+            Mission Mapping
+>>>>>>> ef738864ef64a52aa63efee6fe1169b5a7d731ae
           </button>
           <button 
             className={`nav-button ${currentView === 'security' ? 'active' : ''}`}
             onClick={() => setCurrentView('security')}
           >
+<<<<<<< HEAD
             🔒 Security
+=======
+            <span className="nav-icon">🔒</span>
+            Security
+>>>>>>> ef738864ef64a52aa63efee6fe1169b5a7d731ae
           </button>
           <button 
             className={`nav-button ${currentView === 'mission-history' ? 'active' : ''}`}
             onClick={() => setCurrentView('mission-history')}
           >
+<<<<<<< HEAD
             📜 Mission History
+=======
+            <span className="nav-icon">📜</span>
+            Mission History
+>>>>>>> ef738864ef64a52aa63efee6fe1169b5a7d731ae
           </button>
           <button 
             className={`nav-button ${currentView === 'firmware-management' ? 'active' : ''}`}
             onClick={() => setCurrentView('firmware-management')}
           >
+<<<<<<< HEAD
             🛠️ Firmware Management
+=======
+            <span className="nav-icon">🛠️</span>
+            Firmware Management
+>>>>>>> ef738864ef64a52aa63efee6fe1169b5a7d731ae
           </button>
           <button 
             className={`nav-button ${currentView === 'emergency-controls' ? 'active' : ''}`}
             onClick={() => setCurrentView('emergency-controls')}
           >
+<<<<<<< HEAD
             🚨 Emergency Controls
+=======
+            <span className="nav-icon">🚨</span>
+            Emergency Controls
+>>>>>>> ef738864ef64a52aa63efee6fe1169b5a7d731ae
           </button>
           <button 
             className={`nav-button ${currentView === 'integration' ? 'active' : ''}`}
             onClick={() => setCurrentView('integration')}
           >
+<<<<<<< HEAD
             🔗 Integration
+=======
+            <span className="nav-icon">🔗</span>
+            Integration
+>>>>>>> ef738864ef64a52aa63efee6fe1169b5a7d731ae
           </button>
           <button 
             className={`nav-button ${currentView === 'swarm-ai-sync' ? 'active' : ''}`}
             onClick={() => setCurrentView('swarm-ai-sync')}
           >
+<<<<<<< HEAD
             🧬 Swarm AI Sync
+=======
+            <span className="nav-icon">🧬</span>
+            Swarm AI Sync
+>>>>>>> ef738864ef64a52aa63efee6fe1169b5a7d731ae
           </button>
           <button 
             className={`nav-button ${currentView === 'iff' ? 'active' : ''}`}
             onClick={() => setCurrentView('iff')}
           >
+<<<<<<< HEAD
             🆔 IFF
+=======
+            <span className="nav-icon">🆔</span>
+            IFF
+>>>>>>> ef738864ef64a52aa63efee6fe1169b5a7d731ae
           </button>
         </nav>
       </div>
