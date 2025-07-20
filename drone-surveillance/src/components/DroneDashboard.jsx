@@ -28,26 +28,28 @@ const DroneDashboard = (props) => {
     { id: 7, name: 'Astra-7', type: 'Reconnaissance', battery: 80, status: 'Active', location: 'Sector G', altitude: 1100, speed: 48, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
     { id: 8, name: 'Maitri-8', type: 'Combat', battery: 90, status: 'Active', location: 'Sector H', altitude: 900, speed: 62, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
     { id: 9, name: 'Barak-9', type: 'Surveillance', battery: 76, status: 'Active', location: 'Sector I', altitude: 1400, speed: 37, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 10, name: 'Sagarika-10', type: 'Heavy Combat', battery: 93, status: 'Active', location: 'Sector J', altitude: 700, speed: 73, threatLevel: 'High', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 11, name: 'Shaurya-11', type: 'Stealth', battery: 87, status: 'Active', location: 'Sector K', altitude: 2100, speed: 57, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 12, name: 'Prahaar-12', type: 'Multi-Role', battery: 81, status: 'Active', location: 'Sector L', altitude: 1050, speed: 52, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 13, name: 'K-15-13', type: 'Reconnaissance', battery: 84, status: 'Active', location: 'Sector M', altitude: 1250, speed: 46, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 14, name: 'Dhanush-14', type: 'Combat', battery: 91, status: 'Active', location: 'Sector N', altitude: 850, speed: 61, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 15, name: 'Varunastra-15', type: 'Surveillance', battery: 79, status: 'Active', location: 'Sector O', altitude: 1550, speed: 36, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 16, name: 'K-4-16', type: 'Heavy Combat', battery: 94, status: 'Active', location: 'Sector P', altitude: 650, speed: 74, threatLevel: 'High', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 17, name: 'Surya-17', type: 'Stealth', battery: 89, status: 'Active', location: 'Sector Q', altitude: 2050, speed: 56, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 18, name: 'K-5-18', type: 'Multi-Role', battery: 83, status: 'Active', location: 'Sector R', altitude: 1020, speed: 51, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 19, name: 'K-6-19', type: 'Reconnaissance', battery: 86, status: 'Active', location: 'Sector S', altitude: 1150, speed: 49, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 20, name: 'K-7-20', type: 'Combat', battery: 88, status: 'Active', location: 'Sector T', altitude: 950, speed: 63, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    // Add drones 21-64 with Indian missile names
+    { id: 10, name: 'Kaveri-10', type: 'Heavy Combat', battery: 93, status: 'Active', location: 'Sector J', altitude: 700, speed: 73, threatLevel: 'High', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 11, name: 'Tejas-11', type: 'Stealth', battery: 87, status: 'Active', location: 'Sector K', altitude: 2100, speed: 57, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 12, name: 'Arjun-12', type: 'Multi-Role', battery: 81, status: 'Active', location: 'Sector L', altitude: 1050, speed: 52, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 13, name: 'Dhruv-13', type: 'Reconnaissance', battery: 84, status: 'Active', location: 'Sector M', altitude: 1250, speed: 46, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 14, name: 'Rudra-14', type: 'Combat', battery: 91, status: 'Active', location: 'Sector N', altitude: 850, speed: 61, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 15, name: 'Lakshya-15', type: 'Surveillance', battery: 79, status: 'Active', location: 'Sector O', altitude: 1550, speed: 36, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 16, name: 'Nishant-16', type: 'Heavy Combat', battery: 94, status: 'Active', location: 'Sector P', altitude: 650, speed: 74, threatLevel: 'High', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 17, name: 'Rustom-17', type: 'Stealth', battery: 89, status: 'Active', location: 'Sector Q', altitude: 2050, speed: 56, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 18, name: 'Saras-18', type: 'Multi-Role', battery: 83, status: 'Active', location: 'Sector R', altitude: 1020, speed: 51, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 19, name: 'Hansa-19', type: 'Reconnaissance', battery: 86, status: 'Active', location: 'Sector S', altitude: 1150, speed: 49, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 20, name: 'Kiran-20', type: 'Combat', battery: 88, status: 'Active', location: 'Sector T', altitude: 950, speed: 63, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    // Add drones 21-64 with Indian weapon system names
     ...Array.from({ length: 44 }, (_, i) => {
       const idx = i + 21;
-      const indianMissiles = [
-        'Prithvi', 'Aakash', 'Pinaka', 'Agni', 'BrahMos', 'Nirbhay', 'Astra', 'Maitri', 'Barak', 'Sagarika',
-        'Shaurya', 'Prahaar', 'K-15', 'Dhanush', 'Varunastra', 'K-4', 'Surya', 'K-5', 'K-6', 'K-7',
-        'Prithvi-II', 'Aakash-II', 'Pinaka-II', 'Agni-II', 'BrahMos-II', 'Nirbhay-II', 'Astra-II', 'Maitri-II', 'Barak-II', 'Sagarika-II',
-        'Shaurya-II', 'Prahaar-II', 'K-15-II', 'Dhanush-II', 'Varunastra-II', 'K-4-II', 'Surya-II', 'K-5-II', 'K-6-II', 'K-7-II',
-        'Prithvi-III', 'Aakash-III', 'Pinaka-III', 'Agni-III'
+      const indianNames = [
+        'Vikrant', 'Vikramaditya', 'INS Arihant', 'INS Chakra', 'INS Delhi', 'INS Mumbai', 'INS Kolkata', 'INS Chennai',
+        'INS Kochi', 'INS Visakhapatnam', 'INS Mormugao', 'INS Imphal', 'INS Surat', 'INS Udaygiri', 'INS Dunagiri',
+        'INS Taragiri', 'INS Vindhyagiri', 'INS Nilgiri', 'INS Himgiri', 'INS Udaygiri', 'INS Dunagiri', 'INS Taragiri',
+        'INS Vindhyagiri', 'INS Nilgiri', 'INS Himgiri', 'INS Udaygiri', 'INS Dunagiri', 'INS Taragiri', 'INS Vindhyagiri',
+        'INS Nilgiri', 'INS Himgiri', 'INS Udaygiri', 'INS Dunagiri', 'INS Taragiri', 'INS Vindhyagiri', 'INS Nilgiri',
+        'INS Himgiri', 'INS Udaygiri', 'INS Dunagiri', 'INS Taragiri', 'INS Vindhyagiri', 'INS Nilgiri', 'INS Himgiri',
+        'INS Udaygiri', 'INS Dunagiri', 'INS Taragiri', 'INS Vindhyagiri'
       ];
       const types = ['Reconnaissance','Combat','Surveillance','Heavy Combat','Stealth','Multi-Role'];
       const threatLevels = ['Low','Medium','High'];
@@ -58,7 +60,7 @@ const DroneDashboard = (props) => {
       if (fullIndex >= 50 && fullIndex <= 63) {
         name = `Badal ${fullIndex - 49}`;
       } else {
-        name = indianMissiles[i % indianMissiles.length] + '-' + idx;
+        name = indianNames[i % indianNames.length] + '-' + idx;
       }
       return {
         id: idx,

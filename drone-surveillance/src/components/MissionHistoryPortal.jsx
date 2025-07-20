@@ -4,27 +4,27 @@ import './DroneDashboard.css';
 const DEMO_MISSIONS = [
   {
     id: 1,
-    name: 'Recon Sweep Prithvi',
-    type: 'Reconnaissance',
-    status: 'Completed',
-    startTime: '2024-01-15 08:00',
-    endTime: '2024-01-15 12:00',
-    duration: '4h 00m',
-    drones: ['Prithvi-1', 'Aakash-2'],
-    successRate: 95,
-    notes: 'Successfully mapped 3 sectors, identified 2 potential threats'
+    name: 'Recon Sweep Alpha',
+    date: '2024-05-28',
+    drones: ['Pinaak-01', 'Akash-02'],
+    waypoints: [
+      { lat: 28.6139, lng: 77.2090 },
+      { lat: 28.615, lng: 77.215 },
+    ],
+    outcome: 'Success',
+    summary: 'Area sweep completed. No threats detected.',
   },
   {
     id: 2,
-    name: 'Rescue Op Aakash',
-    type: 'Search & Rescue',
-    status: 'Completed',
-    startTime: '2024-01-14 14:30',
-    endTime: '2024-01-14 18:45',
-    duration: '4h 15m',
-    drones: ['Pinaka-3', 'Agni-4', 'BrahMos-5'],
-    successRate: 88,
-    notes: 'Located missing personnel, provided medical supplies'
+    name: 'Rescue Op Bravo',
+    date: '2024-05-30',
+    drones: ['Prithvi-03', 'Arjun-04'],
+    waypoints: [
+      { lat: 28.617, lng: 77.212 },
+      { lat: 28.618, lng: 77.218 },
+    ],
+    outcome: 'Partial',
+    summary: 'Rescue successful, minor drone damage.',
   },
 ];
 
