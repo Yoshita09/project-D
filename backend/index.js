@@ -197,43 +197,52 @@ app.get('/', (req, res) => {
 app.post('/api/detect', upload.single('image'), async (req, res) => {
   try {
     const { droneId, lat, lng, timestamp } = req.body;
-    if (!req.file || !droneId) {
-      return res.status(400).json({ error: 'Image and droneId required' });
+    if (!req.file) {
+      return res.status(400).json({ error: 'Image is required' });
     }
     const imagePath = req.file.path;
-    // Forward to FastAPI /analyze
+    // Forward to FastAPI /detect (YOLOv8)
+    const FormData = require('form-data');
     const formData = new FormData();
     formData.append('file', require('fs').createReadStream(imagePath));
-    formData.append('lat', lat || 28.6139);
-    formData.append('long', lng || 77.2090);
-    formData.append('timestamp', timestamp || new Date().toISOString());
-    const fastApiUrl = process.env.FASTAPI_URL || 'http://localhost:8000/analyze';
-    const response = await axios.post(fastApiUrl, formData, {
-      headers: formData.getHeaders(),
-      maxContentLength: Infinity,
-      maxBodyLength: Infinity,
-    });
-    const detections = response.data;
-    // Store detection in drone DB
-    await Drone.findOneAndUpdate(
-      { name: new RegExp(`^${droneId}$`, 'i') },
-      { $set: { lastDetection: detections } },
-      { new: true }
-    );
+    if (lat) formData.append('lat', lat);
+    if (lng) formData.append('long', lng);
+    if (timestamp) formData.append('timestamp', timestamp);
+    const fastApiUrl = 'http://localhost:8001/detect';
+    let response, detections;
+    try {
+      response = await axios.post(fastApiUrl, formData, {
+        headers: formData.getHeaders(),
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      });
+      detections = response.data;
+    } catch (err) {
+      console.error('Error forwarding to FastAPI:', err.response ? err.response.data : err.message);
+      return res.status(500).json({ error: 'Failed to connect to AI detection service', details: err.message });
+    }
+    // Optionally store detection in drone DB if droneId is provided
+    if (droneId) {
+      await Drone.findOneAndUpdate(
+        { name: new RegExp(`^${droneId}$`, 'i') },
+        { $set: { lastDetection: detections } },
+        { new: true }
+      );
+    }
     // Broadcast detection via WebSocket
     clientSockets.forEach((client) => {
       if (client.readyState === WebSocket.OPEN) {
         client.send(JSON.stringify({
           type: 'detection',
-          droneId,
+          droneId: droneId || null,
           detections,
         }));
       }
     });
-    res.json({ success: true, droneId, detections });
+    res.json({ success: true, droneId: droneId || null, detections });
   } catch (error) {
     console.error('Detection error:', error);
-    res.status(500).json({ error: 'Detection failed' });
+    res.status(500).json({ error: 'Detection failed', details: error.message });
   }
 });
 

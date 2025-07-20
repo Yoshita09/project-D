@@ -38,7 +38,6 @@ const VideoDetectionSimulator = ({ onHumanCountChange, onDetections }) => {
   const canvasRef = useRef(null);
   const [videoDims, setVideoDims] = useState({ width: 640, height: 360 });
   const [model, setModel] = useState(null);
-  const [humanCount, setHumanCount] = useState(0);
   const [videoQualityWarning, setVideoQualityWarning] = useState(false);
   const [useCamera, setUseCamera] = useState(false);
   const [cameraActive, setCameraActive] = useState(false);
@@ -57,6 +56,7 @@ const VideoDetectionSimulator = ({ onHumanCountChange, onDetections }) => {
   const [aiDetections, setAIDetections] = useState([]);
   const [aiLoading, setAILoading] = useState(false);
   const [aiError, setAIError] = useState(null);
+  const lastHumanCount = React.useRef(null);
 
   // Load COCO-SSD model
   useEffect(() => {
@@ -313,8 +313,10 @@ const VideoDetectionSimulator = ({ onHumanCountChange, onDetections }) => {
         ctx.fillText(`${obj.type} (${Math.round(obj.confidence * 100)}%)`, obj.bounding_box[0], obj.bounding_box[1] - 8);
         ctx.restore();
       });
-      setHumanCount(count);
-      if (onHumanCountChange) onHumanCountChange(count);
+      if (onHumanCountChange && count !== lastHumanCount.current) {
+        onHumanCountChange(count);
+        lastHumanCount.current = count;
+      }
       // Send detections to parent for 3D map
       if (typeof onDetections === 'function') onDetections(detectionsFor3D);
       // Show alert if more than 3 humans detected

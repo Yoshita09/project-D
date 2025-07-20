@@ -19,43 +19,46 @@ import IFFPortal from './IFFPortal';
 const DroneDashboard = (props) => {
   const { detections = [], airDefenses = [], radars = [], missiles = [], detectAirDefense, detectRadar, detectMissile } = props;
   const [drones, setDrones] = useState([
-    { id: 1, name: 'Alpha-1', type: 'Reconnaissance', battery: 85, status: 'Active', location: 'Sector A', altitude: 1200, speed: 45, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 2, name: 'Bravo-2', type: 'Combat', battery: 92, status: 'Active', location: 'Sector B', altitude: 800, speed: 60, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 3, name: 'Charlie-3', type: 'Surveillance', battery: 78, status: 'Active', location: 'Sector C', altitude: 1500, speed: 35, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 4, name: 'Delta-4', type: 'Heavy Combat', battery: 95, status: 'Active', location: 'Sector D', altitude: 600, speed: 75, threatLevel: 'High', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 5, name: 'Echo-5', type: 'Stealth', battery: 88, status: 'Active', location: 'Sector E', altitude: 2000, speed: 55, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 6, name: 'Foxtrot-6', type: 'Multi-Role', battery: 82, status: 'Active', location: 'Sector F', altitude: 1000, speed: 50, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 7, name: 'Golf-7', type: 'Reconnaissance', battery: 80, status: 'Active', location: 'Sector G', altitude: 1100, speed: 48, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 8, name: 'Hotel-8', type: 'Combat', battery: 90, status: 'Active', location: 'Sector H', altitude: 900, speed: 62, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 9, name: 'India-9', type: 'Surveillance', battery: 76, status: 'Active', location: 'Sector I', altitude: 1400, speed: 37, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 10, name: 'Juliet-10', type: 'Heavy Combat', battery: 93, status: 'Active', location: 'Sector J', altitude: 700, speed: 73, threatLevel: 'High', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 11, name: 'Kilo-11', type: 'Stealth', battery: 87, status: 'Active', location: 'Sector K', altitude: 2100, speed: 57, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 12, name: 'Lima-12', type: 'Multi-Role', battery: 81, status: 'Active', location: 'Sector L', altitude: 1050, speed: 52, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 13, name: 'Mike-13', type: 'Reconnaissance', battery: 84, status: 'Active', location: 'Sector M', altitude: 1250, speed: 46, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 14, name: 'November-14', type: 'Combat', battery: 91, status: 'Active', location: 'Sector N', altitude: 850, speed: 61, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 15, name: 'Oscar-15', type: 'Surveillance', battery: 79, status: 'Active', location: 'Sector O', altitude: 1550, speed: 36, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 16, name: 'Papa-16', type: 'Heavy Combat', battery: 94, status: 'Active', location: 'Sector P', altitude: 650, speed: 74, threatLevel: 'High', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 17, name: 'Quebec-17', type: 'Stealth', battery: 89, status: 'Active', location: 'Sector Q', altitude: 2050, speed: 56, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 18, name: 'Romeo-18', type: 'Multi-Role', battery: 83, status: 'Active', location: 'Sector R', altitude: 1020, speed: 51, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 19, name: 'Sierra-19', type: 'Reconnaissance', battery: 86, status: 'Active', location: 'Sector S', altitude: 1150, speed: 49, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    { id: 20, name: 'Tango-20', type: 'Combat', battery: 88, status: 'Active', location: 'Sector T', altitude: 950, speed: 63, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
-    // Add drones 7-50
+    { id: 1, name: 'Prithvi-1', type: 'Reconnaissance', battery: 85, status: 'Active', location: 'Sector A', altitude: 1200, speed: 45, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 2, name: 'Aakash-2', type: 'Combat', battery: 92, status: 'Active', location: 'Sector B', altitude: 800, speed: 60, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 3, name: 'Pinaka-3', type: 'Surveillance', battery: 78, status: 'Active', location: 'Sector C', altitude: 1500, speed: 35, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 4, name: 'Agni-4', type: 'Heavy Combat', battery: 95, status: 'Active', location: 'Sector D', altitude: 600, speed: 75, threatLevel: 'High', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 5, name: 'BrahMos-5', type: 'Stealth', battery: 88, status: 'Active', location: 'Sector E', altitude: 2000, speed: 55, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 6, name: 'Nirbhay-6', type: 'Multi-Role', battery: 82, status: 'Active', location: 'Sector F', altitude: 1000, speed: 50, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 7, name: 'Astra-7', type: 'Reconnaissance', battery: 80, status: 'Active', location: 'Sector G', altitude: 1100, speed: 48, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 8, name: 'Maitri-8', type: 'Combat', battery: 90, status: 'Active', location: 'Sector H', altitude: 900, speed: 62, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 9, name: 'Barak-9', type: 'Surveillance', battery: 76, status: 'Active', location: 'Sector I', altitude: 1400, speed: 37, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 10, name: 'Sagarika-10', type: 'Heavy Combat', battery: 93, status: 'Active', location: 'Sector J', altitude: 700, speed: 73, threatLevel: 'High', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 11, name: 'Shaurya-11', type: 'Stealth', battery: 87, status: 'Active', location: 'Sector K', altitude: 2100, speed: 57, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 12, name: 'Prahaar-12', type: 'Multi-Role', battery: 81, status: 'Active', location: 'Sector L', altitude: 1050, speed: 52, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 13, name: 'K-15-13', type: 'Reconnaissance', battery: 84, status: 'Active', location: 'Sector M', altitude: 1250, speed: 46, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 14, name: 'Dhanush-14', type: 'Combat', battery: 91, status: 'Active', location: 'Sector N', altitude: 850, speed: 61, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 15, name: 'Varunastra-15', type: 'Surveillance', battery: 79, status: 'Active', location: 'Sector O', altitude: 1550, speed: 36, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 16, name: 'K-4-16', type: 'Heavy Combat', battery: 94, status: 'Active', location: 'Sector P', altitude: 650, speed: 74, threatLevel: 'High', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 17, name: 'Surya-17', type: 'Stealth', battery: 89, status: 'Active', location: 'Sector Q', altitude: 2050, speed: 56, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 18, name: 'K-5-18', type: 'Multi-Role', battery: 83, status: 'Active', location: 'Sector R', altitude: 1020, speed: 51, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 19, name: 'K-6-19', type: 'Reconnaissance', battery: 86, status: 'Active', location: 'Sector S', altitude: 1150, speed: 49, threatLevel: 'Low', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    { id: 20, name: 'K-7-20', type: 'Combat', battery: 88, status: 'Active', location: 'Sector T', altitude: 950, speed: 63, threatLevel: 'Medium', emergencyActive: false, lastReflexAction: null, lastEmergencyTime: null },
+    // Add drones 21-64 with Indian missile names
     ...Array.from({ length: 44 }, (_, i) => {
-      const idx = i + 7;
-      const phonetic = [
-        'Golf','Hotel','India','Juliet','Kilo','Lima','Mike','November','Oscar','Papa','Quebec','Romeo','Sierra','Tango','Uniform','Victor','Whiskey','X-ray','Yankee','Zulu',
-        'Alpha2','Bravo2','Charlie2','Delta2','Echo2','Foxtrot2','Golf2','Hotel2','India2','Juliet2','Kilo2','Lima2','Mike2','November2','Oscar2','Papa2','Quebec2','Romeo2','Sierra2','Tango2','Uniform2','Victor2','Whiskey2','X-ray2'
+      const idx = i + 21;
+      const indianMissiles = [
+        'Prithvi', 'Aakash', 'Pinaka', 'Agni', 'BrahMos', 'Nirbhay', 'Astra', 'Maitri', 'Barak', 'Sagarika',
+        'Shaurya', 'Prahaar', 'K-15', 'Dhanush', 'Varunastra', 'K-4', 'Surya', 'K-5', 'K-6', 'K-7',
+        'Prithvi-II', 'Aakash-II', 'Pinaka-II', 'Agni-II', 'BrahMos-II', 'Nirbhay-II', 'Astra-II', 'Maitri-II', 'Barak-II', 'Sagarika-II',
+        'Shaurya-II', 'Prahaar-II', 'K-15-II', 'Dhanush-II', 'Varunastra-II', 'K-4-II', 'Surya-II', 'K-5-II', 'K-6-II', 'K-7-II',
+        'Prithvi-III', 'Aakash-III', 'Pinaka-III', 'Agni-III'
       ];
       const types = ['Reconnaissance','Combat','Surveillance','Heavy Combat','Stealth','Multi-Role'];
       const threatLevels = ['Low','Medium','High'];
       const sector = idx <= 26 ? String.fromCharCode(64 + idx) : 'A' + String.fromCharCode(64 + idx - 26);
-      // For drones that will be at position 50-63 in the full drones array, use 'Badal N'.
+      
       let name;
       const fullIndex = i + 20; // 20 hardcoded drones above + i
       if (fullIndex >= 50 && fullIndex <= 63) {
         name = `Badal ${fullIndex - 49}`;
       } else {
-        name = phonetic[i % phonetic.length] + '-' + idx;
+        name = indianMissiles[i % indianMissiles.length] + '-' + idx;
       }
       return {
         id: idx,
@@ -75,9 +78,9 @@ const DroneDashboard = (props) => {
   ]);
 
   // State to track the ultimate head drone
-  const [ultimateHeadId, setUltimateHeadId] = useState(1); // Alpha-1 starts as ultimate head
+  const [ultimateHeadId, setUltimateHeadId] = useState(1); // Prithvi-1 starts as ultimate head
   const [leadershipHistory, setLeadershipHistory] = useState([
-    { droneId: 1, droneName: 'Alpha-1', timestamp: new Date(), reason: 'Initial Assignment' }
+    { droneId: 1, droneName: 'Prithvi-1', timestamp: new Date(), reason: 'Initial Assignment' }
   ]);
 
   // Function to find the next ultimate head when current one is destroyed
@@ -89,7 +92,7 @@ const DroneDashboard = (props) => {
     }
 
     // Priority order for leadership transfer:
-    // 1. Super heads (Bravo-2, Charlie-3, etc.)
+    // 1. Super heads (Aakash-2, Pinaka-3, etc.)
     // 2. Group heads
     // 3. Drones with highest battery
     // 4. Drones with highest combat capability (Heavy Combat > Combat > others)
@@ -148,7 +151,7 @@ const DroneDashboard = (props) => {
       severity: 'High',
       location: newHeadDrone.location,
       time: 'Just now',
-      description: `Leadership transferred to ${newHeadDrone.name}. Alpha-1 has been destroyed.`
+      description: `Leadership transferred to ${newHeadDrone.name}. Prithvi-1 has been destroyed.`
     }, ...prev.slice(0, 19)]);
   };
 
@@ -165,11 +168,11 @@ const DroneDashboard = (props) => {
     return { ...drone, group, isHead, isSuperHead, iffCode, isFriend, isUltimateHead };
   });
 
-  // Monitor for Alpha-1 destruction and transfer leadership
+  // Monitor for Prithvi-1 destruction and transfer leadership
   useEffect(() => {
-    const alpha1 = drones.find(drone => drone.id === 1);
-    if (alpha1 && alpha1.status !== 'Active' && ultimateHeadId === 1) {
-      // Alpha-1 has been destroyed, find new ultimate head
+    const prithvi1 = drones.find(drone => drone.id === 1);
+    if (prithvi1 && prithvi1.status !== 'Active' && ultimateHeadId === 1) {
+      // Prithvi-1 has been destroyed, find new ultimate head
       const newUltimateHead = findNextUltimateHead(drones, 1);
       if (newUltimateHead) {
         transferLeadership(newUltimateHead);
@@ -846,7 +849,7 @@ const DroneDashboard = (props) => {
             onClick={() => destroyDrone(1)}
             style={{marginTop:12, padding:'8px 16px', background:'#ff4444', color:'#fff', border:'none', borderRadius:8, fontWeight:700, cursor:'pointer', fontSize:12}}
           >
-            Test: Destroy Alpha-1
+            Test: Destroy Prithvi-1
           </button>
         </div>
 

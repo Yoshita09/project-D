@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import './App.css'
 import DroneDashboard from './components/DroneDashboard'
 import SurveillanceMap from './components/SurveillanceMap'
@@ -29,7 +29,7 @@ import SwarmVisualizerPortal from './components/SwarmVisualizerPortal';
 const defaultDrones = [
   {
     id: 1,
-    name: 'Alpha-1',
+    name: 'Prithvi-1',
     type: 'Reconnaissance',
     battery: 85,
     altitude: 1200,
@@ -45,7 +45,7 @@ const defaultDrones = [
   },
   {
     id: 2,
-    name: 'Bravo-2',
+    name: 'Aakash-2',
     type: 'Combat',
     battery: 92,
     altitude: 800,
@@ -61,7 +61,7 @@ const defaultDrones = [
   },
   {
     id: 3,
-    name: 'Charlie-3',
+    name: 'Pinaka-3',
     type: 'Surveillance',
     battery: 78,
     altitude: 1500,
@@ -180,6 +180,18 @@ function App() {
   // Handler for map control (future expansion)
   // Simulate detection handlers
 
+  const handleDetections = useCallback((newDetections) => {
+    setDetections(prev => {
+      if (
+        prev.length === newDetections.length &&
+        prev.every((d, i) => JSON.stringify(d) === JSON.stringify(newDetections[i]))
+      ) {
+        return prev;
+      }
+      return newDetections;
+    });
+  }, []);
+
   // Move mapThreats declaration before renderCurrentView
   const mapThreats = alerts
     .filter(alert => ['Threat', 'Intrusion', 'System', 'illegal', 'unauthorized'].includes(alert.type))
@@ -223,6 +235,7 @@ function App() {
           <ThermalView 
           drones={drones}
             systemStatus={systemStatus}
+            onAlert={() => {}}
         />
         )
       case 'alerts':
@@ -248,7 +261,7 @@ function App() {
         return (
           <VideoDetectionSimulator 
             onHumanCountChange={(count) => console.log('Human count:', count)}
-            onDetections={(detections) => setDetections(prev => [...prev, ...detections])}
+            onDetections={handleDetections}
         />
         )
       case 'defense':
@@ -303,9 +316,11 @@ function App() {
 
   return (
     <div className="app">
-      <header className="header">
-        <h1>🛸 Advanced Drone Surveillance System</h1>
-        <nav className="nav">
+      <div className="sidebar">
+        <div className="sidebar-header">
+          <h1>🛸 Advanced Drone Surveillance System</h1>
+        </div>
+        <nav className="sidebar-nav">
           <button 
             className={`nav-button ${currentView === 'dashboard' ? 'active' : ''}`}
             onClick={() => setCurrentView('dashboard')}
@@ -349,75 +364,75 @@ function App() {
             🛡️ Defense Systems
           </button>
           <button 
-  className={`nav-button ${currentView === 'analytics' ? 'active' : ''}`}
-  onClick={() => setCurrentView('analytics')}
->
-  📊 Analytics
-</button>
-  <button 
-    className={`nav-button ${currentView === 'ai-detection' ? 'active' : ''}`}
-    onClick={() => setCurrentView('ai-detection')}
-  >
-    🤖 AI Detection
-  </button>
-  <button 
-    className={`nav-button ${currentView === 'ai-output' ? 'active' : ''}`}
-    onClick={() => setCurrentView('ai-output')}
-  >
-    🧠 AI Output
-  </button>
-  <button 
-    className={`nav-button ${currentView === 'mission-mapping' ? 'active' : ''}`}
-    onClick={() => setCurrentView('mission-mapping')}
-  >
-    🗺️ Mission Mapping
-  </button>
-  <button 
-    className={`nav-button ${currentView === 'security' ? 'active' : ''}`}
-    onClick={() => setCurrentView('security')}
+            className={`nav-button ${currentView === 'analytics' ? 'active' : ''}`}
+            onClick={() => setCurrentView('analytics')}
           >
-    🔒 Security
-  </button>
-  <button 
-    className={`nav-button ${currentView === 'mission-history' ? 'active' : ''}`}
-    onClick={() => setCurrentView('mission-history')}
-  >
-    📜 Mission History
-  </button>
-  <button 
-    className={`nav-button ${currentView === 'firmware-management' ? 'active' : ''}`}
-    onClick={() => setCurrentView('firmware-management')}
-  >
-    🛠️ Firmware Management
-  </button>
-  <button 
-    className={`nav-button ${currentView === 'emergency-controls' ? 'active' : ''}`}
-    onClick={() => setCurrentView('emergency-controls')}
-  >
-    🚨 Emergency Controls
-  </button>
-  <button 
-    className={`nav-button ${currentView === 'integration' ? 'active' : ''}`}
-    onClick={() => setCurrentView('integration')}
+            📊 Analytics
+          </button>
+          <button 
+            className={`nav-button ${currentView === 'ai-detection' ? 'active' : ''}`}
+            onClick={() => setCurrentView('ai-detection')}
           >
-    🔗 Integration
-  </button>
-  <button 
-    className={`nav-button ${currentView === 'swarm-ai-sync' ? 'active' : ''}`}
-    onClick={() => setCurrentView('swarm-ai-sync')}
-  >
-    🧬 Swarm AI Sync
-  </button>
-  <button 
-    className={`nav-button ${currentView === 'iff' ? 'active' : ''}`}
-    onClick={() => setCurrentView('iff')}
-  >
-    🆔 IFF
+            🤖 AI Detection
+          </button>
+          <button 
+            className={`nav-button ${currentView === 'ai-output' ? 'active' : ''}`}
+            onClick={() => setCurrentView('ai-output')}
+          >
+            🧠 AI Output
+          </button>
+          <button 
+            className={`nav-button ${currentView === 'mission-mapping' ? 'active' : ''}`}
+            onClick={() => setCurrentView('mission-mapping')}
+          >
+            🗺️ Mission Mapping
+          </button>
+          <button 
+            className={`nav-button ${currentView === 'security' ? 'active' : ''}`}
+            onClick={() => setCurrentView('security')}
+          >
+            🔒 Security
+          </button>
+          <button 
+            className={`nav-button ${currentView === 'mission-history' ? 'active' : ''}`}
+            onClick={() => setCurrentView('mission-history')}
+          >
+            📜 Mission History
+          </button>
+          <button 
+            className={`nav-button ${currentView === 'firmware-management' ? 'active' : ''}`}
+            onClick={() => setCurrentView('firmware-management')}
+          >
+            🛠️ Firmware Management
+          </button>
+          <button 
+            className={`nav-button ${currentView === 'emergency-controls' ? 'active' : ''}`}
+            onClick={() => setCurrentView('emergency-controls')}
+          >
+            🚨 Emergency Controls
+          </button>
+          <button 
+            className={`nav-button ${currentView === 'integration' ? 'active' : ''}`}
+            onClick={() => setCurrentView('integration')}
+          >
+            🔗 Integration
+          </button>
+          <button 
+            className={`nav-button ${currentView === 'swarm-ai-sync' ? 'active' : ''}`}
+            onClick={() => setCurrentView('swarm-ai-sync')}
+          >
+            🧬 Swarm AI Sync
+          </button>
+          <button 
+            className={`nav-button ${currentView === 'iff' ? 'active' : ''}`}
+            onClick={() => setCurrentView('iff')}
+          >
+            🆔 IFF
           </button>
         </nav>
-      </header>
+      </div>
       <main className="main-content">
-  {renderCurrentView()}
+        {renderCurrentView()}
       </main>
     </div>
   )

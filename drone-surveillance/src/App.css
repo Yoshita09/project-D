@@ -46,7 +46,7 @@
   min-height: 100vh;
   width: 100vw;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
   color: #ffffff;
   /* Remove forced overflow and max/min width/height */
@@ -56,22 +56,28 @@
   /* max-height: 100vh; */
 }
 
-.header {
-  background: rgba(0, 0, 0, 0.8);
+.sidebar {
+  width: 280px;
+  background: rgba(0, 0, 0, 0.9);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 1rem 2rem;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   z-index: 1000;
-  min-height: 70px;
+  flex-shrink: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar-header {
+  padding: 1.5rem 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
 }
 
-.header h1 {
-  font-size: clamp(1.2rem, 4vw, 1.8rem);
+.sidebar-header h1 {
+  font-size: clamp(1rem, 2.5vw, 1.4rem);
   font-weight: 600;
   background: linear-gradient(45deg, #00d4ff, #ff6b6b);
   -webkit-background-clip: text;
@@ -80,56 +86,56 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin: 0;
+  line-height: 1.2;
 }
 
-.nav {
+.sidebar-nav {
   display: flex;
-  gap: 1rem;
-  align-items: center;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
+  padding: 1rem 0;
+  flex: 1;
+  gap: 0.25rem;
 }
 
 .nav-button {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-left: 3px solid transparent;
   color: #ffffff;
-  padding: clamp(0.5rem, 2vw, 0.75rem) clamp(1rem, 3vw, 1.5rem);
-  border-radius: 8px;
+  padding: 0.75rem 1rem;
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 500;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  font-size: clamp(0.8rem, 2.5vw, 1rem);
-  white-space: nowrap;
-  min-height: 44px;
+  font-size: 0.9rem;
+  text-align: left;
+  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0;
+  margin: 0;
 }
 
 .nav-button:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.4);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border-left-color: rgba(255, 255, 255, 0.3);
+  transform: translateX(5px);
 }
 
 .nav-button.active {
-  background: linear-gradient(45deg, #00d4ff, #ff6b6b);
-  border-color: transparent;
-  box-shadow: 0 4px 15px rgba(0, 212, 255, 0.4);
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.2), rgba(255, 107, 107, 0.1));
+  border-left-color: #00d4ff;
+  box-shadow: inset 0 0 20px rgba(0, 212, 255, 0.1);
 }
 
 .main-content {
   flex: 1;
   display: flex;
-  /* Remove forced overflow and min-width/min-height */
-  /* overflow: hidden; */
+  overflow: auto;
   position: relative;
-  /* min-height: 0; */
-  /* min-width: 0; */
+  min-height: 0;
+  min-width: 0;
 }
 
 /* Enhanced Responsive Design */
@@ -338,11 +344,10 @@
   }
 }
 
-/* Focus management for keyboard navigation */
 .nav-button:focus-visible {
   outline: 2px solid #00d4ff;
   outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.2);
+  background: rgba(0, 212, 255, 0.2);
 }
 
 /* Dashboard Styles */
@@ -2887,5 +2892,160 @@
   .navbar button {
     min-width: 120px;
     margin-right: 0.5rem;
+  }
+}
+
+/* Enhanced Responsive Design for Sidebar */
+@media (max-width: 1400px) {
+  .sidebar {
+    width: 260px;
+  }
+  
+  .sidebar-header {
+    padding: 1.25rem 0.75rem;
+  }
+}
+
+@media (max-width: 1200px) {
+  .sidebar {
+    width: 240px;
+  }
+  
+  .sidebar-header {
+    padding: 1rem 0.75rem;
+  }
+  
+  .nav-button {
+    padding: 0.6rem 0.75rem;
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 220px;
+  }
+  
+  .sidebar-header h1 {
+    font-size: clamp(0.9rem, 3vw, 1.2rem);
+  }
+  
+  .nav-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 60vh;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .sidebar-header {
+    padding: 0.75rem;
+  }
+  
+  .sidebar-header h1 {
+    font-size: clamp(1rem, 4vw, 1.3rem);
+    text-align: center;
+  }
+  
+  .sidebar-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    justify-content: center;
+  }
+  
+  .nav-button {
+    flex: 1;
+    min-width: 120px;
+    max-width: 150px;
+    text-align: center;
+    justify-content: center;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 6px;
+  }
+  
+  .nav-button:hover {
+    transform: translateY(-2px);
+    border-left-color: transparent;
+    border-bottom-color: rgba(255, 255, 255, 0.3);
+  }
+  
+  .nav-button.active {
+    border-left-color: transparent;
+    border-bottom-color: #00d4ff;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    max-height: 50vh;
+  }
+  
+  .sidebar-header {
+    padding: 0.5rem;
+  }
+  
+  .sidebar-header h1 {
+    font-size: clamp(0.9rem, 5vw, 1.1rem);
+  }
+  
+  .sidebar-nav {
+    gap: 0.25rem;
+    padding: 0.5rem;
+  }
+  
+  .nav-button {
+    min-width: 100px;
+    max-width: 120px;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .sidebar {
+    max-height: 45vh;
+  }
+  
+  .sidebar-header h1 {
+    font-size: clamp(0.8rem, 6vw, 1rem);
+  }
+  
+  .nav-button {
+    min-width: 80px;
+    max-width: 100px;
+    font-size: 0.7rem;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .sidebar {
+    max-height: 40vh;
+  }
+  
+  .sidebar-header {
+    padding: 0.5rem;
+  }
+  
+  .sidebar-header h1 {
+    font-size: clamp(0.8rem, 3vw, 1rem);
+  }
+  
+  .nav-button {
+    padding: 0.3rem 0.5rem;
+    font-size: 0.7rem;
   }
 }
