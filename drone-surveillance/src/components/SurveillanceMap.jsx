@@ -7,9 +7,9 @@ const SurveillanceMap = () => {
     { id: 1, name: 'Prithvi-1', x: 20, y: 30, type: 'Reconnaissance', battery: 85, status: 'Active' },
     { id: 2, name: 'Aakash-2', x: 60, y: 40, type: 'Combat', battery: 92, status: 'Active' },
     { id: 3, name: 'Pinaka-3', x: 40, y: 70, type: 'Surveillance', battery: 78, status: 'Active' },
-    { id: 4, name: 'Delta-4', x: 80, y: 20, type: 'Heavy Combat', battery: 95, status: 'Active' },
-    { id: 5, name: 'Echo-5', x: 30, y: 80, type: 'Stealth', battery: 88, status: 'Active' },
-    { id: 6, name: 'Foxtrot-6', x: 70, y: 60, type: 'Multi-Role', battery: 82, status: 'Active' }
+    { id: 4, name: 'Pinaka-4', x: 80, y: 20, type: 'Heavy Combat', battery: 95, status: 'Active' },
+    { id: 5, name: 'Aakash-5', x: 30, y: 80, type: 'Stealth', battery: 88, status: 'Active' },
+    { id: 6, name: 'Prithvi-6', x: 70, y: 60, type: 'Multi-Role', battery: 82, status: 'Active' }
   ]);
 
   const [threats] = useState([

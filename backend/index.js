@@ -9,18 +9,253 @@ const mongoose = require('mongoose');
 const axios = require('axios');
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/drone_fleet', {
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/drone_fleet';
+console.log(`Connecting to MongoDB at: ${MONGODB_URI}`);
+mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
-.then(() => console.log('MongoDB connected'))
-.catch((err) => console.error('MongoDB connection error:', err));
+  .then(() => console.log('MongoDB connected successfully'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const WEBSOCKET_PORT = process.env.WEBSOCKET_PORT || 8080;
+
+console.log(`Starting Express server on port: ${PORT}`);
+console.log(`Starting WebSocket server on port: ${WEBSOCKET_PORT}`);
+
+// Service URLs from environment variables
+const serviceUrls = {
+  flightController: process.env.FLIGHT_CONTROLLER_URL || 'http://flight_controller_bridge:5100',
+  missionPlanner: process.env.MISSION_PLANNER_URL || 'http://mission_planner:5200',
+  sensorFusion: process.env.SENSOR_FUSION_URL || 'http://sensor_fusion:5300',
+  swarmCommBroker: process.env.SWARM_COMM_BROKER_URL || 'http://swarm_comm_broker:5400',
+  securityLayer: process.env.SECURITY_LAYER_URL || 'http://security_layer:5450',
+  latencyPredictor: process.env.LATENCY_PREDICTOR_URL || 'http://latency_predictor:5500',
+  videoEncryption: process.env.VIDEO_ENCRYPTION_URL || 'http://video_encryption:5600',
+  swarmAI: process.env.SWARM_AI_URL || 'http://swarm_ai:5700',
+  aiInference: process.env.AI_INFERENCE_URL || 'http://ai_inference:5800'
+};
+
+console.log('Service URLs configured:', serviceUrls);
 
 // WebSocket server
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = new WebSocket.Server({ port: WEBSOCKET_PORT });
+
+// Map of droneId to WebSocket (for drones)
+const droneSockets = new Map();
+// Set of client sockets (for dashboards, etc.)
+const clientSockets = new Set();
+
+// Enhanced WebSocket handling for AI integration
+wss.on('connection', (ws, req) => {
+  console.log('New WebSocket connection established');
+
+  ws.on('message', async (message) => {
+    try {
+      const data = JSON.parse(message);
+      console.log('WebSocket message received:', data.type);
+
+      switch (data.type) {
+        case 'service_registration':
+          handleServiceRegistration(ws, data);
+          break;
+        case 'drone_registration':
+          handleDroneRegistration(ws, data);
+          break;
+        case 'detection_request':
+          await handleDetectionRequest(ws, data);
+          break;
+        case 'detection_results':
+          await handleDetectionResults(ws, data);
+          break;
+        case 'telemetry_update':
+          await handleTelemetryUpdate(ws, data);
+          break;
+        default:
+          console.log('Unknown message type:', data.type);
+      }
+    } catch (error) {
+      console.error('WebSocket message error:', error);
+      ws.send(JSON.stringify({ type: 'error', message: error.message }));
+    }
+  });
+
+  ws.on('close', () => {
+    console.log('WebSocket connection closed');
+    // Clean up drone and service registrations
+    cleanupConnections(ws);
+  });
+});
+
+// Service registration handler
+function handleServiceRegistration(ws, data) {
+  const { service, port } = data;
+  console.log(`Service registered: ${service} on port ${port}`);
+
+  // Store service connection
+  if (!global.serviceConnections) {
+    global.serviceConnections = new Map();
+  }
+  global.serviceConnections.set(service, { ws, port });
+
+  ws.send(JSON.stringify({
+    type: 'registration_confirmed',
+    service,
+    status: 'registered'
+  }));
+}
+
+// Detection request handler
+async function handleDetectionRequest(ws, data) {
+  try {
+    const { drone_id, image, timestamp } = data;
+
+    // Forward to AI inference service
+    const response = await axios.post(`${serviceUrls.aiInference}/detect`, {
+      image,
+      drone_id,
+      timestamp
+    });
+
+    if (response.data.success) {
+      // Broadcast results to all connected clients
+      const resultMessage = {
+        type: 'detection_results',
+        drone_id,
+        detections: response.data.detections,
+        count: response.data.count,
+        timestamp: response.data.timestamp
+      };
+
+      broadcastToClients(resultMessage);
+
+      // Store detection results in database
+      await storeDetectionResults(drone_id, response.data.detections);
+    }
+  } catch (error) {
+    console.error('Detection request error:', error);
+    ws.send(JSON.stringify({
+      type: 'error',
+      message: 'Detection request failed',
+      error: error.message
+    }));
+  }
+}
+
+// Detection results handler
+async function handleDetectionResults(ws, data) {
+  try {
+    const { drone_id, results, timestamp } = data;
+
+    // Store results in database
+    await storeDetectionResults(drone_id, results);
+
+    // Broadcast to all connected clients
+    broadcastToClients({
+      type: 'detection_results',
+      drone_id,
+      results,
+      timestamp
+    });
+
+    // Trigger threat analysis if high-threat objects detected
+    const highThreatDetections = results.filter(r => r.threat_level === 'high');
+    if (highThreatDetections.length > 0) {
+      await triggerThreatResponse(drone_id, highThreatDetections);
+    }
+
+  } catch (error) {
+    console.error('Detection results handling error:', error);
+  }
+}
+
+// Store detection results in database
+async function storeDetectionResults(droneId, detections) {
+  try {
+    const drone = await Drone.findOne({ name: droneId });
+    if (drone) {
+      // Update drone with latest detections
+      drone.detections = detections;
+      drone.lastDetectionTime = new Date();
+      await drone.save();
+
+      // Store individual detection records
+      for (const detection of detections) {
+        const detectionRecord = {
+          droneId,
+          detection,
+          timestamp: new Date(),
+          threatLevel: detection.threat_level
+        };
+
+        // You can create a Detection model and save here
+        console.log('Detection stored:', detectionRecord);
+      }
+    }
+  } catch (error) {
+    console.error('Error storing detection results:', error);
+  }
+}
+
+// Trigger threat response
+async function triggerThreatResponse(droneId, threats) {
+  try {
+    console.log(`High threat detected by drone ${droneId}:`, threats);
+
+    // Notify security layer
+    await axios.post(`${serviceUrls.securityLayer}/threat-alert`, {
+      drone_id: droneId,
+      threats,
+      timestamp: new Date().toISOString()
+    });
+
+    // Broadcast threat alert
+    broadcastToClients({
+      type: 'threat_alert',
+      drone_id: droneId,
+      threats,
+      severity: 'high',
+      timestamp: new Date().toISOString()
+    });
+
+  } catch (error) {
+    console.error('Threat response error:', error);
+  }
+}
+
+// Broadcast message to all connected clients
+function broadcastToClients(message) {
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(message));
+    }
+  });
+}
+
+// Cleanup connections
+function cleanupConnections(ws) {
+  // Remove from service connections
+  if (global.serviceConnections) {
+    for (const [service, connection] of global.serviceConnections.entries()) {
+      if (connection.ws === ws) {
+        global.serviceConnections.delete(service);
+        console.log(`Service ${service} disconnected`);
+        break;
+      }
+    }
+  }
+
+  // Remove from drone connections
+  for (const [droneId, connection] of droneSockets.entries()) {
+    if (connection.ws === ws) {
+      droneSockets.delete(droneId);
+      console.log(`Drone ${droneId} disconnected`);
+      break;
+    }
+  }
+}
 
 // Middleware
 app.use(cors());
@@ -41,11 +276,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // --- WebSocket Real-Time Per-Drone Logic ---
-// Map of droneId to WebSocket (for drones)
-const droneSockets = new Map();
-// Set of client sockets (for dashboards, etc.)
-const clientSockets = new Set();
-
 /**
  * WebSocket message structure:
  * - Telemetry (from drone):
@@ -61,103 +291,6 @@ const clientSockets = new Set();
  * - IFF update (placeholder):
  *   { type: 'iff_update', droneId, iffCode, status }
  */
-
-wss.on('connection', (ws) => {
-  ws.isAlive = true;
-  ws.on('pong', () => { ws.isAlive = true; });
-
-  ws.on('message', async (message) => {
-    try {
-      const data = JSON.parse(message);
-      // Drone telemetry update
-      if (data.type === 'telemetry' && data.droneId) {
-        droneSockets.set(data.droneId, ws);
-        // Update drone in DB
-        await Drone.findOneAndUpdate(
-          { name: new RegExp(`^${data.droneId}$`, 'i') },
-          {
-            $set: {
-              telemetry: data.telemetry,
-              location: data.location,
-              isActive: true,
-              status: 'Active',
-            },
-          },
-          { new: true }
-        );
-        // Broadcast telemetry to all clients
-        clientSockets.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({
-              type: 'telemetry',
-              droneId: data.droneId,
-              telemetry: data.telemetry,
-              location: data.location,
-            }));
-          }
-        });
-      }
-      // Command from frontend
-      else if (data.type === 'command' && data.droneId) {
-        const droneWs = droneSockets.get(data.droneId);
-        if (droneWs && droneWs.readyState === WebSocket.OPEN) {
-          droneWs.send(JSON.stringify(data));
-        }
-      }
-      // Swarm command (placeholder)
-      else if (data.type === 'swarm_command') {
-        // Broadcast to all specified drones
-        (data.drones || []).forEach(droneId => {
-          const droneWs = droneSockets.get(droneId);
-          if (droneWs && droneWs.readyState === WebSocket.OPEN) {
-            droneWs.send(JSON.stringify(data));
-          }
-        });
-      }
-      // Emergency (placeholder)
-      else if (data.type === 'emergency' && data.droneId) {
-        const droneWs = droneSockets.get(data.droneId);
-        if (droneWs && droneWs.readyState === WebSocket.OPEN) {
-          droneWs.send(JSON.stringify(data));
-        }
-      }
-      // IFF update (placeholder)
-      else if (data.type === 'iff_update' && data.droneId) {
-        const droneWs = droneSockets.get(data.droneId);
-        if (droneWs && droneWs.readyState === WebSocket.OPEN) {
-          droneWs.send(JSON.stringify(data));
-        }
-      }
-      // Register as client (dashboard)
-      else if (data.type === 'register' && data.role === 'client') {
-        clientSockets.add(ws);
-      }
-      // Video/thermal feed (placeholder)
-      else if (data.type === 'video' && data.droneId) {
-        // Broadcast video stream URL to all clients
-        clientSockets.forEach((client) => {
-          if (client.readyState === WebSocket.OPEN) {
-            client.send(JSON.stringify({
-              type: 'video',
-              droneId: data.droneId,
-              streamUrl: data.streamUrl || '',
-            }));
-          }
-        });
-      }
-    } catch (error) {
-      console.error('WebSocket message error:', error);
-    }
-  });
-
-  ws.on('close', () => {
-    for (const [droneId, socket] of droneSockets.entries()) {
-      if (socket === ws) droneSockets.delete(droneId);
-    }
-    clientSockets.delete(ws);
-    console.log('WebSocket disconnected');
-  });
-});
 
 // Drone Mongoose model
 const droneSchema = new mongoose.Schema({
@@ -359,7 +492,7 @@ app.get('/api/defense/status', (req, res) => {
 app.post('/api/defense/activate', (req, res) => {
   const { system } = req.body;
   console.log(`Activating ${system} system`);
-  
+
   // Broadcast defense system activation
   wss.clients.forEach((client) => {
     if (client.readyState === WebSocket.OPEN) {
@@ -369,7 +502,7 @@ app.post('/api/defense/activate', (req, res) => {
       }));
     }
   });
-  
+
   res.json({ success: true, message: `${system} system activated` });
 });
 
@@ -391,12 +524,12 @@ app.get('/api/security/health', (req, res) => {
 
 app.post('/api/security/login', (req, res) => {
   const { username, password } = req.body;
-  
+
   // Simple authentication (in production, use proper auth)
   if (username === 'admin' && password === 'password') {
     const token = 'mock-jwt-token-' + Date.now();
-  res.json({
-    success: true,
+    res.json({
+      success: true,
       token,
       user: { username, role: 'admin' }
     });
@@ -430,7 +563,7 @@ app.get('/api/threats/current', (req, res) => {
 
 app.post('/api/threats/analyze', (req, res) => {
   const { threatData } = req.body;
-  
+
   // Simulate threat analysis
   const analysis = {
     threatLevel: 'HIGH',
@@ -439,7 +572,7 @@ app.post('/api/threats/analyze', (req, res) => {
     estimatedTimeToCritical: 180,
     riskFactors: ['High speed', 'Unknown origin', 'Erratic movement']
   };
-  
+
   res.json(analysis);
 });
 
@@ -664,7 +797,114 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Something went wrong!' });
 });
 
+// Enhanced API endpoints for AI integration
+
+// AI service health check
+app.get('/api/ai/health', async (req, res) => {
+  try {
+    const response = await axios.get(`${serviceUrls.aiInference}/health`);
+    res.json({
+      success: true,
+      aiService: response.data,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'AI service unavailable',
+      message: error.message
+    });
+  }
+});
+
+// Get AI model information
+app.get('/api/ai/model-info', async (req, res) => {
+  try {
+    const response = await axios.get(`${serviceUrls.aiInference}/model/info`);
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Failed to get model info',
+      message: error.message
+    });
+  }
+});
+
+// Manual detection endpoint
+app.post('/api/ai/detect', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file provided' });
+    }
+
+    // Convert image to base64
+    const imageBuffer = req.file.buffer || require('fs').readFileSync(req.file.path);
+    const base64Image = imageBuffer.toString('base64');
+
+    // Send to AI service
+    const response = await axios.post(`${serviceUrls.aiInference}/detect`, {
+      image: base64Image
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Detection failed',
+      message: error.message
+    });
+  }
+});
+
+// Batch analysis endpoint
+app.post('/api/ai/analyze-batch', async (req, res) => {
+  try {
+    const { images } = req.body;
+
+    if (!images || !Array.isArray(images)) {
+      return res.status(400).json({ error: 'Images array required' });
+    }
+
+    const response = await axios.post(`${serviceUrls.aiInference}/analyze/batch`, {
+      images
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    res.status(500).json({
+      error: 'Batch analysis failed',
+      message: error.message
+    });
+  }
+});
+
+// Service status endpoint
+app.get('/api/services/status', async (req, res) => {
+  const serviceStatus = {};
+
+  for (const [serviceName, url] of Object.entries(serviceUrls)) {
+    try {
+      const response = await axios.get(`${url}/health`, { timeout: 5000 });
+      serviceStatus[serviceName] = {
+        status: 'healthy',
+        url,
+        response: response.data
+      };
+    } catch (error) {
+      serviceStatus[serviceName] = {
+        status: 'unhealthy',
+        url,
+        error: error.message
+      };
+    }
+  }
+
+  res.json({
+    services: serviceStatus,
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`WebSocket server running on port 8080`);
-}); 
+});
