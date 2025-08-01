@@ -45,7 +45,7 @@ const OTAManagementPortal = () => {
 
   return (
     <div style={{ padding: 20 }}>
-      <h2>OTA + Model/Firmware Management</h2>
+      <h2>OTA + Model</h2>
       <h3>Current Drones</h3>
       <ul>
         {drones.map(d => (
