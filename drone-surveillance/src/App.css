@@ -1,8 +1,17 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 1rem;
   text-align: center;
+  overflow-x: hidden;
+  /* margin: auto;
+  padding: auto; */
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  background: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+  
 }
 
 .logo {
@@ -68,6 +77,8 @@
   flex-shrink: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  
+  
 }
 
 .sidebar-header {
@@ -83,7 +94,6 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   margin: 0;
@@ -131,11 +141,20 @@
 
 .main-content {
   flex: 1;
-  display: flex;
-  overflow: auto;
-  position: relative;
+  /* display: flex; */
+  /* overflow: auto; */
+  /* position: relative; */
   min-height: 0;
   min-width: 0;
+  overflow-x:hidden;
+  flex: 1 1 0;
+  justify-content: center;
+  
+  
+}
+
+html, body {
+  overflow-x: hidden;
 }
 
 /* Enhanced Responsive Design */

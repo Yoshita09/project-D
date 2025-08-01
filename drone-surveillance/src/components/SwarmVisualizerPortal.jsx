@@ -810,7 +810,7 @@ const SwarmVisualizerPortal = () => {
             fontSize: isMobile ? '20px' : '28px',
             textShadow: '0 0 10px #00d4ff40'
           }}>
-            🧠 Swarm Visualizer & Coordination Portal
+            Swarm Visualizer & Coordination Portal
           </h1>
           <div style={{
             color: '#00ff88',
@@ -822,7 +822,7 @@ const SwarmVisualizerPortal = () => {
           }}>
             <span>🔗 {isConnected ? 'Connected' : 'Disconnected'}</span>
             <span>🤖 {autonomousMode ? 'Autonomous' : 'Manual'}</span>
-            <span>📱 {screenSize.width}x{screenSize.height} ({orientation})</span>
+            {/* <span>📱 {screenSize.width}x{screenSize.height} ({orientation})</span> */}
             <span>⚡ Speed: {animationSpeed}x</span>
           </div>
         </div>
