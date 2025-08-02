@@ -415,7 +415,7 @@ function App() {
             className={`nav-button ${currentView === 'swarmVisualizer' ? 'active' : ''}`}
             onClick={() => setCurrentView('swarmVisualizer')}
           >
-            🌐 Swarm Visualizer & Coordination
+            🌐 Swarm Coordination
           </button>
 
           {/* <button
