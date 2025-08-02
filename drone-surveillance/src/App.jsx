@@ -559,7 +559,6 @@ function App() {
           >
             🆔 IFF
           </button>
-<<<<<<< HEAD
           <button
             className={`nav-button ${currentView === 'enhanced-security' ? 'active' : ''}`}
             onClick={() => setCurrentView('enhanced-security')}
@@ -584,9 +583,6 @@ function App() {
           >
             🔍 Security Verification
           </button>
-=======
-
->>>>>>> e9824c3c546131f24f73435e9601ffb83cea9f78
         </nav>
       </div>
       <main className="main-content">
