@@ -5,6 +5,7 @@
     "@tensorflow-models/coco-ssd": "^2.2.3",
     "@tensorflow/tfjs": "^4.22.0",
     "body-parser": "^2.2.0",
+    "crypto-js": "^4.2.0",
     "three": "^0.178.0",
     "ws": "^8.18.3"
   }

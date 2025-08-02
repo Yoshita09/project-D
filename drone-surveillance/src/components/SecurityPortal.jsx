@@ -23,6 +23,17 @@ const SecurityPortal = () => {
 
   // Valid credentials
   const validCredentials = {
+    'ashutosh': {
+      password: 'admin123',
+      fullName: 'Ashutosh Mishra',
+      role: 'System Administrator',
+      permissions: ['read', 'write', 'delete', 'admin', 'security_override', 'system_config'],
+      email: 'ashutosh.mishra@military-surveillance.com',
+      department: 'Cyber Security & Defense',
+      clearance: 'Top Secret',
+      lastLogin: new Date(),
+      sessionTimeout: 480 // 8 hours
+    },
     'admin': {
       password: 'admin123',
       fullName: 'Ashutosh Mishra',
@@ -310,9 +321,12 @@ const SecurityPortal = () => {
           }}>
             <h4 style={{ color: '#93c5fd', margin: '0 0 8px 0', fontSize: '0.9em' }}>Demo Credentials:</h4>
             <p style={{ color: '#dbeafe', margin: '0', fontSize: '0.8em' }}>
-              Username: <strong>admin</strong><br />
+              Username: <strong>ashutosh</strong> (Primary Admin)<br />
               Password: <strong>admin123</strong><br />
-              User: <strong>Ashutosh Mishra</strong>
+              User: <strong>Ashutosh Mishra</strong> (System Administrator)<br />
+              <br />
+              Username: <strong>admin</strong> (Legacy)<br />
+              Password: <strong>admin123</strong>
             </p>
           </div>
         </div>
@@ -350,6 +364,18 @@ const SecurityPortal = () => {
             </h1>
             <p style={{ margin: 0, color: '#94a3b8', fontSize: 'clamp(0.8rem, 2vw, 1rem)' }}>
               Welcome back, <strong>{currentUser.fullName}</strong> ({currentUser.role})
+              {currentUser.username === 'ashutosh' && (
+                <span style={{ 
+                  background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', 
+                  padding: '4px 8px', 
+                  borderRadius: '4px', 
+                  marginLeft: '10px',
+                  fontSize: '0.8em',
+                  color: 'white'
+                }}>
+                  🔐 TOP SECRET CLEARANCE
+                </span>
+              )}
             </p>
           </div>
           <button
