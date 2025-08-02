@@ -25,6 +25,10 @@ import MissionLogsPortal from './components/MissionLogsPortal';
 import SimulationPortal from './components/SimulationPortal';
 import SwarmVisualizerPortal from './components/SwarmVisualizerPortal';
 import AutonomousRadioSystem from './components/AutonomousRadioSystem';
+import EnhancedSecurityDashboard from './components/EnhancedSecurityDashboard';
+import DataProtectionPortal from './components/DataProtectionPortal';
+import SecureCommunicationPortal from './components/SecureCommunicationPortal';
+import SecurityVerificationPortal from './components/SecurityVerificationPortal';
 
 // Default drone fleet for initial state
 const defaultDrones = [
@@ -299,6 +303,14 @@ function App() {
         return <SwarmVisualizerPortal />;
       case 'autonomous-radio':
         return <AutonomousRadioSystem />;
+      case 'enhanced-security':
+        return <EnhancedSecurityDashboard />;
+      case 'data-protection':
+        return <DataProtectionPortal />;
+      case 'secure-communication':
+        return <SecureCommunicationPortal />;
+      case 'security-verification':
+        return <SecurityVerificationPortal />;
       default:
         return (
           <DroneDashboard
@@ -547,7 +559,34 @@ function App() {
           >
             🆔 IFF
           </button>
+<<<<<<< HEAD
+          <button
+            className={`nav-button ${currentView === 'enhanced-security' ? 'active' : ''}`}
+            onClick={() => setCurrentView('enhanced-security')}
+          >
+            🛡️ Enhanced Security
+          </button>
+          <button
+            className={`nav-button ${currentView === 'data-protection' ? 'active' : ''}`}
+            onClick={() => setCurrentView('data-protection')}
+          >
+            🔐 Data Protection
+          </button>
+          <button
+            className={`nav-button ${currentView === 'secure-communication' ? 'active' : ''}`}
+            onClick={() => setCurrentView('secure-communication')}
+          >
+            💬 Secure Communication
+          </button>
+          <button
+            className={`nav-button ${currentView === 'security-verification' ? 'active' : ''}`}
+            onClick={() => setCurrentView('security-verification')}
+          >
+            🔍 Security Verification
+          </button>
+=======
 
+>>>>>>> e9824c3c546131f24f73435e9601ffb83cea9f78
         </nav>
       </div>
       <main className="main-content">
