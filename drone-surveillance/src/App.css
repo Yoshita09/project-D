@@ -1490,6 +1490,7 @@ html, body {
 .control-section.military {
   border-color: #ff4444;
   background: rgba(255, 68, 68, 0.05);
+  margin: 30px 10px;
 }
 
 .control-section.military h4 {
@@ -1739,6 +1740,7 @@ html, body {
   
   .control-buttons {
     grid-template-columns: 1fr;
+    margin-bottom: 10px;
   }
   
   .manual-controls {
