@@ -20,7 +20,7 @@ import EmergencyControlsPortal from './components/EmergencyControlsPortal';
 import IntegrationPortal from './components/IntegrationPortal';
 import SwarmAISyncPortal from './components/SwarmAISyncPortal';
 import IFFPortal from './components/IFFPortal';
-import OTAManagementPortal from './components/OTAManagementPortal';
+import OTAManagementPortal from './components/OTAManagmentPortal';
 import MissionLogsPortal from './components/MissionLogsPortal';
 import SimulationPortal from './components/SimulationPortal';
 import SwarmVisualizerPortal from './components/SwarmVisualizerPortal';
@@ -552,7 +552,6 @@ function App() {
           >
             🆔 IFF
           </button>
-<<<<<<< HEAD
           <button
             className={`nav-button ${currentView === 'enhanced-security' ? 'active' : ''}`}
             onClick={() => setCurrentView('enhanced-security')}
@@ -577,9 +576,6 @@ function App() {
           >
             🔍 Security Verification
           </button>
-=======
-
->>>>>>> e9824c3c546131f24f73435e9601ffb83cea9f78
         </nav>
       </div>
       <main className="main-content">

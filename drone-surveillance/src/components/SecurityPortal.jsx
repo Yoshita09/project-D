@@ -23,7 +23,7 @@ const SecurityPortal = () => {
 
   // Valid credentials
   const validCredentials = {
-    'ashutosh': {
+    'ashutosh Mishra': {
       password: 'admin123',
       fullName: 'Ashutosh Mishra',
       role: 'System Administrator',
@@ -34,11 +34,10 @@ const SecurityPortal = () => {
       lastLogin: new Date(),
       sessionTimeout: 480 // 8 hours
     },
-    'admin': {
+    'Admin': {
       password: 'admin123',
       fullName: 'Ashutosh Mishra',
-      role: 'Admin',
-      permissions: ['read', 'write', 'delete', 'admin']
+      
     }
   };
 
