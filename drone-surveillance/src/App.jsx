@@ -334,12 +334,12 @@ function App() {
             📹 Video Detection
           </button>
 
-          <button
+          {/* <button
             className={`nav-button ${currentView === 'map' ? 'active' : ''}`}
             onClick={() => setCurrentView('map')}
           >
             🗺️ Surveillance Map
-          </button>
+          </button> */}
           <button
             className={`nav-button ${currentView === 'thermal' ? 'active' : ''}`}
             onClick={() => setCurrentView('thermal')}
@@ -388,6 +388,13 @@ function App() {
           </button>
 
           <button
+            className={`nav-button ${currentView === 'swarmVisualizer' ? 'active' : ''}`}
+            onClick={() => setCurrentView('swarmVisualizer')}
+          >
+            🌐 Swarm Visualizer & Coordination
+          </button>
+
+          <button
             className={`nav-button ${currentView === 'swarm-ai-sync' ? 'active' : ''}`}
             onClick={() => setCurrentView('swarm-ai-sync')}
           >
@@ -422,12 +429,12 @@ function App() {
             🛠️ Firmware Management
           </button>
 
-          <button
+          {/* <button
             className={`nav-button ${currentView === 'swarmVisualizer' ? 'active' : ''}`}
             onClick={() => setCurrentView('swarmVisualizer')}
           >
             🌐 Swarm Visualizer & Coordination
-          </button>
+          </button> */}
 
           <button
             className={`nav-button ${currentView === 'integration' ? 'active' : ''}`}
