@@ -42,10 +42,38 @@ export default function MissionHistoryPortal() {
           <h4 style={{ color: '#1976d2' }}>Past Missions</h4>
           <ul style={{ listStyle: 'none', padding: 0 }}>
             {missions.map(m => (
-              <li key={m.id} style={{ marginBottom: 10, background: selected?.id === m.id ? '#e3f2fd' : '#f5f5f5', borderRadius: 6, padding: '10px 18px', color: '#1976d2', fontWeight: 600, fontSize: 15, boxShadow: '0 1px 4px #1976d211', cursor: 'pointer' }} onClick={() => setSelected(m)}>
-                <span style={{ fontWeight: 700 }}>{m.name}</span> <span style={{ color: '#888', fontWeight: 400, fontSize: 13 }}>({m.date})</span>
-                <span style={{ float: 'right', color: m.outcome === 'Success' ? '#4CAF50' : '#ffaa00', fontWeight: 700 }}>{m.outcome}</span>
-              </li>
+              <li
+  key={m.id}
+  style={{
+    marginBottom: 10,
+    background: selected?.id === m.id ? '#e3f2fd' : '#f5f5f5',
+    borderRadius: 6,
+    padding: '10px 18px',
+    color: '#1976d2',
+    fontWeight: 600,
+    fontSize: 15,
+    boxShadow: '0 1px 4px #1976d211',
+    cursor: 'pointer',
+    
+    alignItems: 'center',
+    justifyContent: 'space-between'
+  }}
+  onClick={() => setSelected(m)}
+>
+  <div>
+    <span style={{ fontWeight: 700 }}>{m.name}</span>
+  </div>
+  <div style={{ color: '#888', fontWeight: 400, fontSize: 13, marginLeft: 8 }}>({m.date})
+  </div>
+    
+  <span style={{ color: m.outcome === 'Success' ? '#4CAF50' : '#ffaa00', fontWeight: 700, marginLeft: 16 }}>
+    {m.outcome}
+  </span>
+</li>
+              // <li key={m.id} style={{ marginBottom: 10, background: selected?.id === m.id ? '#e3f2fd' : '#f5f5f5', borderRadius: 6, padding: '10px 18px', color: '#1976d2', fontWeight: 600, fontSize: 15, boxShadow: '0 1px 4px #1976d211', cursor: 'pointer' }} onClick={() => setSelected(m)}>
+              //   <span style={{ fontWeight: 700 }}>{m.name}</span> <span style={{ color: '#888', fontWeight: 400, fontSize: 13 }}>({m.date})</span>
+              //   <span style={{ float: 'right', color: m.outcome === 'Success' ? '#4CAF50' : '#ffaa00', fontWeight: 700 }}>{m.outcome}</span>
+              // </li>
             ))}
           </ul>
         </div>

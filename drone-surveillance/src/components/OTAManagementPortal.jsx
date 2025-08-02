@@ -190,6 +190,7 @@ const OTAManagementPortal = () => {
   };
 
   return (
+<<<<<<< HEAD
     <div style={{
       minHeight: '100vh',
       background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
@@ -644,6 +645,25 @@ const OTAManagementPortal = () => {
           </div>
         )}
       </div>
+=======
+    <div style={{ padding: 20 }}>
+      <h2>OTA + Model</h2>
+      <h3>Current Drones</h3>
+      <ul>
+        {drones.map(d => (
+          <li key={d.name}>{d.name}: Firmware {d.firmware}, Model {d.model}
+            <button onClick={() => triggerUpdate(d.name)} style={{ marginLeft: 10 }}>OTA Update</button>
+            <button onClick={() => rollback(d.name)} style={{ marginLeft: 5 }}>Rollback</button>
+          </li>
+        ))}
+      </ul>
+      <form onSubmit={uploadFile} style={{ marginTop: 20 }}>
+        <h4>Upload Model/Firmware</h4>
+        <input type="file" onChange={e => setFile(e.target.files[0])} required />
+        <button type="submit">Upload</button>
+      </form>
+      {message && <div style={{ marginTop: 10, color: 'green' }}>{message}</div>}
+>>>>>>> e9824c3c546131f24f73435e9601ffb83cea9f78
     </div>
   );
 };
