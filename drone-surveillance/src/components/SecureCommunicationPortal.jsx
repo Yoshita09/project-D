@@ -405,7 +405,7 @@ const SecureCommunicationPortal = () => {
             borderRadius: '12px',
             border: '1px solid rgba(148, 163, 184, 0.1)'
           }}>
-            <h3 style={{ marginBottom: '20px' }}>📡 Secure Communication Channels</h3>
+            <h3 style={{ marginBottom: '20px' }}>Secure Communication Channels</h3>
             <div style={{ display: 'grid', gap: '15px' }}>
               {secureChannels.map(channel => (
                 <div key={channel.id} style={{

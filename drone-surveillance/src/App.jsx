@@ -549,12 +549,7 @@ function App() {
           >
             📋 Mission Logs
           </button> */}
-          <button
-            className={`nav-button ${currentView === 'simulation' ? 'active' : ''}`}
-            onClick={() => setCurrentView('simulation')}
-          >
-            🎮 Simulation
-          </button>
+          
           {/* <button
             className={`nav-button ${currentView === 'swarmVisualizer' ? 'active' : ''}`}
             onClick={() => setCurrentView('swarmVisualizer')}
@@ -574,6 +569,14 @@ function App() {
           >
             🆔 IFF
           </button>
+
+          <button
+            className={`nav-button ${currentView === 'simulation' ? 'active' : ''}`}
+            onClick={() => setCurrentView('simulation')}
+          >
+            🎮 Simulation
+          </button>
+          
           {/* <button
             className={`nav-button ${currentView === 'enhanced-security' ? 'active' : ''}`}
             onClick={() => setCurrentView('enhanced-security')}
