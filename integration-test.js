@@ -200,18 +200,19 @@ async function testPortConfiguration() {
     console.log('\n🔌 Testing Port Configuration...');
 
     const ports = [
-        { port: 3000, service: 'Frontend' },
-        { port: 5000, service: 'Backend' },
-        { port: 5100, service: 'Flight Controller' },
-        { port: 5200, service: 'Mission Planner' },
-        { port: 5300, service: 'Sensor Fusion' },
-        { port: 5400, service: 'Swarm Comm Broker' },
-        { port: 5450, service: 'Security Layer' },
-        { port: 5500, service: 'Latency Predictor' },
-        { port: 5600, service: 'Video Encryption' },
-        { port: 5700, service: 'Swarm AI' },
-        { port: 5800, service: 'AI Inference' },
-        { port: 8080, service: 'WebSocket' }
+          { port: 3000, service: 'Frontend' },
+  { port: 5000, service: 'Backend' },
+  { port: 5100, service: 'Flight Controller' },
+  { port: 5200, service: 'Mission Planner' },
+  { port: 5300, service: 'Sensor Fusion' },
+  { port: 5400, service: 'Swarm Comm Broker' },
+  { port: 5450, service: 'Security Layer' },
+  { port: 5500, service: 'Latency Predictor' },
+  { port: 5600, service: 'Video Encryption' },
+  { port: 5700, service: 'Swarm AI' },
+  { port: 5800, service: 'AI Inference' },
+  { port: 8080, service: 'WebSocket' },
+  { port: 8090, service: 'Telemetry WebSocket' }
     ];
 
     for (const { port, service } of ports) {

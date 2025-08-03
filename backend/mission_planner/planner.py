@@ -449,4 +449,6 @@ def adapt_to_weather(drone_id: str, weather: WeatherData):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8005)
+    import os
+    port = int(os.getenv("PORT", 5200))
+    uvicorn.run(app, host="0.0.0.0", port=port)

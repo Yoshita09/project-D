@@ -20,7 +20,7 @@ import EmergencyControlsPortal from './components/EmergencyControlsPortal';
 import IntegrationPortal from './components/IntegrationPortal';
 import SwarmAISyncPortal from './components/SwarmAISyncPortal';
 import IFFPortal from './components/IFFPortal';
-import OTAManagementPortal from './components/OTAManagementPortal';
+import OTAManagementPortal from './components/OTAManagmentPortal';
 import MissionLogsPortal from './components/MissionLogsPortal';
 import SimulationPortal from './components/SimulationPortal';
 import SwarmVisualizerPortal from './components/SwarmVisualizerPortal';
