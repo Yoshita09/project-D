@@ -315,14 +315,17 @@ function App() {
         );
       case 'autonomous-radio':
         return <AutonomousRadioSystem />;
-      case 'enhanced-security':
-        return <EnhancedSecurityDashboard />;
-      case 'data-protection':
-        return <DataProtectionPortal />;
+      // case 'enhanced-security':
+      //   return <EnhancedSecurityDashboard />;
+      // case 'data-protection':
+      //   return <DataProtectionPortal />;
       case 'secure-communication':
         return <SecureCommunicationPortal />;
       case 'security-verification':
-        return <SecurityVerificationPortal />;
+        return  <div>
+          <SecurityVerificationPortal />
+          <EnhancedSecurityDashboard />
+        </div> 
       default:
         return (
           <DroneDashboard
@@ -571,29 +574,29 @@ function App() {
           >
             🆔 IFF
           </button>
-          <button
+          {/* <button
             className={`nav-button ${currentView === 'enhanced-security' ? 'active' : ''}`}
             onClick={() => setCurrentView('enhanced-security')}
           >
             🛡️ Enhanced Security
-          </button>
+          </button> */}
           <button
+            className={`nav-button ${currentView === 'security-verification' ? 'active' : ''}`}
+            onClick={() => setCurrentView('security-verification')}
+          >
+            🔐 Data Protection
+          </button>
+          {/* <button
             className={`nav-button ${currentView === 'data-protection' ? 'active' : ''}`}
             onClick={() => setCurrentView('data-protection')}
           >
             🔐 Data Protection
-          </button>
+          </button> */}
           <button
             className={`nav-button ${currentView === 'secure-communication' ? 'active' : ''}`}
             onClick={() => setCurrentView('secure-communication')}
           >
             💬 Secure Communication
-          </button>
-          <button
-            className={`nav-button ${currentView === 'security-verification' ? 'active' : ''}`}
-            onClick={() => setCurrentView('security-verification')}
-          >
-            🔍 Security Verification
           </button>
         </nav>
       </div>

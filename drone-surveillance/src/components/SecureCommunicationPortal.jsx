@@ -164,19 +164,19 @@ const SecureCommunicationPortal = () => {
     return colors[priority] || '#6b7280';
   };
 
-  const getPriorityIcon = (priority) => {
-    const icons = {
-      low: '📝',
-      normal: '💬',
-      high: '⚠️',
-      critical: '🚨'
-    };
-    return icons[priority] || '💬';
-  };
+  // const getPriorityIcon = (priority) => {
+  //   const icons = {
+  //     low: '📝',
+  //     normal: '',
+  //     high: '⚠️',
+  //     critical: '🚨'
+  //   };
+  //   return icons[priority] || '💬';
+  // };
 
   return (
     <div style={{
-      minHeight: '100vh',
+      // minHeight: '100vh',
       background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
       color: '#f1f5f9',
       padding: '20px'
@@ -191,7 +191,7 @@ const SecureCommunicationPortal = () => {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent'
           }}>
-            🔐 Secure Communication Portal
+            Secure Communication Portal
           </h1>
           <p style={{ margin: 0, color: '#94a3b8', fontSize: 'clamp(0.8rem, 2vw, 1rem)' }}>
             End-to-End Encrypted Communication & Secure Messaging
@@ -206,10 +206,10 @@ const SecureCommunicationPortal = () => {
           flexWrap: 'wrap'
         }}>
           {[
-            { id: 'messaging', label: '💬 Messaging' },
-            { id: 'channels', label: '📡 Channels' },
-            { id: 'status', label: '📊 Status' },
-            { id: 'logs', label: '📋 Logs' }
+            { id: 'messaging', label: 'Messaging' },
+            { id: 'channels', label: 'Channels' },
+            { id: 'status', label: 'Status' },
+            { id: 'logs', label: 'Logs' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -238,7 +238,7 @@ const SecureCommunicationPortal = () => {
             display: 'grid',
             gridTemplateColumns: '1fr 300px',
             gap: '20px',
-            height: '70vh'
+            // height: '70vh'
           }}>
             {/* Message List */}
             <div style={{
@@ -252,9 +252,9 @@ const SecureCommunicationPortal = () => {
               <h3 style={{ marginBottom: '20px' }}>Secure Messages</h3>
               <div style={{ 
                 flex: 1, 
-                overflowY: 'auto', 
+                // overflowY: 'auto', 
                 display: 'flex', 
-                flexDirection: 'column-reverse',
+                flexDirection: 'column',
                 gap: '15px'
               }}>
                 {messages.map(message => (
@@ -268,7 +268,8 @@ const SecureCommunicationPortal = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
                       <div>
                         <div style={{ fontWeight: '600', marginBottom: '5px' }}>
-                          {getPriorityIcon(message.priority)} {message.sender}
+                          {/* {getPriorityIcon(message.priority)}  */}
+                          {message.sender}
                         </div>
                         <div style={{ color: '#94a3b8', fontSize: '0.9em' }}>
                           To: {message.recipient}
@@ -283,7 +284,7 @@ const SecureCommunicationPortal = () => {
                           fontSize: '0.8em',
                           marginBottom: '5px'
                         }}>
-                          {message.encrypted ? '🔒 ENCRYPTED' : '📝 PLAIN'}
+                          {message.encrypted ? 'ENCRYPTED' : 'PLAIN'}
                         </div>
                         <div style={{ color: '#94a3b8', fontSize: '0.8em' }}>
                           {message.timestamp.toLocaleTimeString()}
@@ -356,7 +357,7 @@ const SecureCommunicationPortal = () => {
                     background: 'rgba(51, 65, 85, 0.5)',
                     color: '#f1f5f9',
                     width: '100%',
-                    minHeight: '100px',
+                    // minHeight: '100px',
                     resize: 'vertical'
                   }}
                 />
@@ -370,7 +371,7 @@ const SecureCommunicationPortal = () => {
                     onChange={(e) => setIsEncrypted(e.target.checked)}
                     style={{ transform: 'scale(1.2)' }}
                   />
-                  <span>🔒 Encrypt Message</span>
+                  <span>Encrypt Message</span>
                 </label>
               </div>
 
@@ -390,7 +391,7 @@ const SecureCommunicationPortal = () => {
                   fontWeight: '600'
                 }}
               >
-                🔐 Send Secure Message
+                Send Secure Message
               </button>
             </div>
           </div>
