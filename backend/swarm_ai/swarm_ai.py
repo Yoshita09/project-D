@@ -382,4 +382,6 @@ def drone_to_drone_transfer(request: Dict[str, Any]):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8002)
+    import os
+    port = int(os.getenv("PORT", 5700))
+    uvicorn.run(app, host="0.0.0.0", port=port)

@@ -372,6 +372,9 @@ ENCRYPTION_ALGORITHM=AES-256-GCM
 PBKDF2_ITERATIONS=100000
 RSA_KEY_SIZE=4096
 
+# Additional Services
+TELEMETRY_PORT=8090
+
 # Microservices URLs
 FLIGHT_CONTROLLER_URL=http://localhost:5100
 MISSION_PLANNER_URL=http://localhost:5200
@@ -433,12 +436,13 @@ docker-compose down
 - **Frontend**: 3000
 - **Backend API**: 5000
 - **WebSocket**: 8080
+- **Telemetry WebSocket**: 8090
 - **MongoDB**: 27017
 - **Redis**: 6379
 - **Flight Controller**: 5100
 - **Mission Planner**: 5200
 - **Sensor Fusion**: 5300
-- **Swarm Communication**: 5400
+- **Swarm Communication**: 5400, 5401
 - **Security Layer**: 5450
 - **Latency Predictor**: 5500
 - **Video Encryption**: 5600

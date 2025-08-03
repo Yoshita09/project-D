@@ -1,8 +1,9 @@
 const WebSocket = require('ws');
 
-const wss = new WebSocket.Server({ port: 8090 });
+const port = process.env.TELEMETRY_PORT || 8090;
+const wss = new WebSocket.Server({ port: port });
 
-console.log('Telemetry WebSocket server running on ws://localhost:8090');
+console.log(`Telemetry WebSocket server running on ws://localhost:${port}`);
 
 function sendDemoTelemetry(ws) {
   const drones = [
